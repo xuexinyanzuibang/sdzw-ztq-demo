@@ -1,0 +1,2595 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>站群管理平台 · 交互演示</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--blue:#2b6cf0;--navy:#123a77;--ink:#1f2a3d;--mut:#8ba0bd;--line:#e8eef7;--ok:#199a5e;--warn:#c07f00;--dan:#c0392b}
+body{font-family:"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;color:var(--ink);background:#eef2f8;display:flex;height:100vh;overflow:hidden}
+/* ===== 侧栏 ===== */
+.sidebar{width:220px;flex-shrink:0;background:linear-gradient(180deg,#0c2d5e,#123a77);color:#fff;display:flex;flex-direction:column}
+.slogo{height:60px;display:flex;align-items:center;gap:10px;padding:0 18px;border-bottom:1px solid rgba(255,255,255,.12)}
+.slogo .b{width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,#2b6cf0,#4a8cf5);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800}
+.slogo .t{font-size:14px;font-weight:700;letter-spacing:1px}
+.slogo .t small{display:block;font-size:9px;font-weight:400;color:#8fb0dd}
+.snav{flex:1;padding:12px 10px;overflow-y:auto}
+.sgroup{font-size:10.5px;color:#7ea3d4;letter-spacing:2px;padding:10px 10px 5px}
+.sitem{display:flex;align-items:center;gap:9px;padding:9px 12px;border-radius:8px;font-size:13px;color:#c6d8f0;margin-bottom:2px;cursor:pointer;transition:.15s}
+.sitem:hover{background:rgba(255,255,255,.08)}
+.sitem.on{background:linear-gradient(90deg,rgba(43,108,240,.9),rgba(74,140,245,.55));color:#fff;font-weight:600}
+.sitem .ic{width:17px;text-align:center}
+.sitem .tag{margin-left:auto;background:#f5b308;color:#5c4200;font-size:10px;border-radius:8px;padding:1px 7px;font-weight:700}
+.sfoot{padding:12px 16px;border-top:1px solid rgba(255,255,255,.12);display:flex;align-items:center;gap:9px}
+.sfoot .av{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#f5b308,#f0c27a);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#5c4200}
+.sfoot .nm{font-size:12px;font-weight:600}
+.sfoot .rl{font-size:10px;color:#8fb0dd}
+/* ===== 主区 ===== */
+.main{flex:1;display:flex;flex-direction:column;min-width:0}
+.topbar{height:54px;background:#fff;display:flex;align-items:center;gap:12px;padding:0 22px;box-shadow:0 1px 8px rgba(16,50,110,.06);flex-shrink:0}
+.crumb{font-size:12.5px;color:#6b7f9e}
+.crumb b{color:var(--navy)}
+.spacer{flex:1}
+.tbtn{height:32px;padding:0 14px;border-radius:16px;background:#fff;border:1.5px solid var(--line);font-size:12px;color:#44597c;display:flex;align-items:center;gap:6px;cursor:pointer}
+.tbtn:hover{border-color:var(--blue);color:var(--blue)}
+.pages{flex:1;overflow-y:auto;padding:20px 22px}
+.page{display:none}
+.page.on{display:block;animation:fadein .2s}
+@keyframes fadein{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.pagetitle{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:14px}
+.pagetitle h1{font-size:20px;font-weight:800;color:#12335f}
+.pagetitle h1 span{font-size:12px;font-weight:400;color:var(--mut);margin-left:8px}
+.pagebtns{display:flex;gap:9px}
+.btn{height:36px;padding:0 16px;border-radius:9px;font-size:13px;display:inline-flex;align-items:center;gap:6px;cursor:pointer;border:none;transition:.15s}
+.btn.pri{background:linear-gradient(135deg,#1a4fa8,var(--blue));color:#fff;font-weight:600;box-shadow:0 5px 14px rgba(26,79,168,.3)}
+.btn.pri:hover{transform:translateY(-1px)}
+.btn.gho{background:#fff;border:1.5px solid var(--line);color:#44597c}
+.btn.gho:hover{border-color:var(--blue);color:var(--blue)}
+/* KPI */
+.kpis{display:flex;gap:14px;margin-bottom:16px}
+.kpi{flex:1;background:#fff;border-radius:13px;padding:14px 16px;box-shadow:0 5px 14px rgba(16,50,110,.05);border-top:3px solid var(--blue);cursor:default}
+.kpi.o{border-top-color:#f5b308}.kpi.g{border-top-color:var(--ok)}.kpi.r{border-top-color:#d64550}.kpi.p{border-top-color:#6a4fe0}
+.kpi .l{font-size:11.5px;color:var(--mut)}
+.kpi .n{font-size:23px;font-weight:800;color:#12335f;margin-top:3px}
+.kpi .n i{font-style:normal;font-size:12px;margin-left:2px}
+.kpi .d{font-size:10.5px;margin-top:2px;color:#9db0cc}
+.kpi .d.up{color:var(--ok)}.kpi .d.wn{color:#d64550}
+/* 卡片 */
+.card{background:#fff;border-radius:13px;box-shadow:0 5px 14px rgba(16,50,110,.05);margin-bottom:16px;overflow:hidden}
+.chead{display:flex;align-items:center;padding:13px 18px;border-bottom:1px solid #f0f4fa;gap:11px}
+.chead .t{font-size:14.5px;font-weight:700;color:#12335f;display:flex;align-items:center;gap:8px}
+.chead .t::before{content:"";width:4px;height:14px;border-radius:2px;background:linear-gradient(180deg,var(--blue),#f5b308)}
+.chead .more{margin-left:auto;font-size:11.5px;color:#7d93b5}
+/* 工具条 */
+.toolbar{display:flex;align-items:center;gap:8px;padding:12px 18px;border-bottom:1px solid #f0f4fa;flex-wrap:wrap}
+.fsel,.fdate{height:32px;border:1.5px solid var(--line);border-radius:8px;background:#fff;font-size:12px;color:#44597c;padding:0 10px;cursor:pointer;outline:none}
+.finput{height:32px;width:190px;border:1.5px solid var(--line);border-radius:8px;background:#f8fbff;font-size:12px;padding:0 11px;outline:none}
+.finput:focus{border-color:var(--blue)}
+.taction{height:32px;padding:0 13px;border-radius:8px;font-size:12px;display:inline-flex;align-items:center;gap:5px;cursor:pointer;border:1.5px solid transparent;transition:.15s}
+.taction.pri{background:var(--blue);color:#fff;font-weight:600}
+.taction.gho{background:#fff;border-color:var(--line);color:#44597c}
+.taction.gho:hover{border-color:var(--blue);color:var(--blue)}
+.taction.dan{background:#fff;border-color:#f0c8cc;color:var(--dan)}
+.taction.dan:hover{background:var(--dan);color:#fff}
+.taction:disabled{opacity:.4;cursor:not-allowed}
+/* 表格 */
+table{width:100%;border-collapse:collapse}
+th{font-size:11.5px;color:var(--mut);font-weight:600;text-align:left;padding:9px 12px;background:#f7f9fd}
+th:first-child,td:first-child{padding-left:18px}
+td{font-size:12.5px;color:#33465f;padding:11px 12px;border-bottom:1px solid #f4f7fb;vertical-align:middle}
+tr:hover td{background:#fafcff}
+.ck{width:15px;height:15px;border:1.5px solid #c4d3e8;border-radius:4px;display:inline-block;cursor:pointer;position:relative;background:#fff}
+.ck.on{background:var(--blue);border-color:var(--blue)}
+.ck.on::after{content:"✓";color:#fff;font-size:10px;position:absolute;left:2.5px;top:-1px}
+.stt{display:inline-block;font-size:10.5px;padding:3px 9px;border-radius:10px;font-weight:600}
+.stt.pub{background:#e6f7ee;color:var(--ok)}
+.stt.rev{background:#eaf1ff;color:#1a5bd7}
+.stt.drf{background:#eef2f8;color:#6b7f9e}
+.stt.off{background:#fdecec;color:var(--dan)}
+/* 稿件使用站点徽标 */
+.usesite{display:inline-block;font-size:10px;background:#eef4ff;color:#1a5bd7;border-radius:6px;padding:2px 7px;margin:1px 2px 1px 0;font-weight:600;white-space:nowrap}
+.usesite.more2{background:#f0f4fa;color:#6b7f9e;cursor:pointer}
+.usecell{line-height:1.9}
+.ttc .a{font-weight:600;color:#2c3f5c;display:flex;align-items:center;gap:6px;font-size:12.5px}
+.ttc .a .pin{font-size:9.5px;background:#eaf1ff;color:#1a5bd7;border-radius:4px;padding:1px 5px;font-weight:700}
+.ttc .b{font-size:10.5px;color:#9db0cc;margin-top:2px}
+.op{display:flex;gap:9px;font-size:12px}
+.op a{color:var(--blue);cursor:pointer;text-decoration:none}
+.op a.d{color:var(--dan)}
+.op a:hover{text-decoration:underline}
+.sortbtn{display:flex;flex-direction:column;gap:1px}
+.sortbtn span{cursor:pointer;color:#c4d3e8;font-size:9px;line-height:1;user-select:none}
+.sortbtn span:hover{color:var(--blue)}
+/* 分页 */
+.pager{display:flex;align-items:center;padding:12px 18px;gap:7px}
+.pager .info{font-size:11.5px;color:var(--mut);margin-right:auto}
+.pg{min-width:28px;height:28px;border-radius:7px;border:1.5px solid var(--line);background:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:12px;color:#44597c;cursor:pointer}
+.pg.on{background:var(--blue);border-color:var(--blue);color:#fff;font-weight:700}
+/* 编辑器 */
+.edgrid{display:grid;grid-template-columns:1fr 320px;gap:15px;align-items:start}
+.edhead{display:flex;align-items:center;gap:11px;padding:12px 18px;border-bottom:1px solid #f0f4fa}
+.edhead .t{font-size:15px;font-weight:800;color:#12335f;flex:1}
+.fmtbar{display:flex;align-items:center;gap:3px;padding:8px 12px;border-bottom:1px solid #f0f4fa;flex-wrap:wrap;background:#fbfcfe}
+.fb{min-width:28px;height:28px;border-radius:7px;display:inline-flex;align-items:center;justify-content:center;font-size:12.5px;color:#44597c;font-weight:600;cursor:pointer;border:none;background:transparent;padding:0 7px}
+.fb:hover{background:#eaf1ff;color:var(--blue)}
+.fsep{width:1px;height:17px;background:#e4ebf5;margin:0 5px}
+.doc{padding:20px 30px;outline:none;min-height:300px;line-height:1.9}
+.doc h2{font-size:19px;text-align:center;margin-bottom:6px}
+.doc .meta{text-align:center;font-size:11.5px;color:#9db0cc;margin-bottom:16px}
+.doc .meta b{color:var(--blue)}
+.doc p{font-size:14px;color:#33465f;text-indent:2em;text-align:justify;margin-bottom:9px}
+.doc .imgbox{height:130px;border-radius:10px;background:linear-gradient(135deg,#7a9fd4,#a8c4e8);display:flex;align-items:center;justify-content:center;color:#fff;font-size:12.5px;margin:8px 0}
+.doc .cap{font-size:11px;color:#9db0cc;text-align:center;margin:-3px 0 11px}
+.doc .imgbox.real{background-size:cover;background-position:center;color:transparent;text-indent:0}
+.doc .cap.photocap{color:#5b8fd0}
+.panel{padding:14px 16px;border-bottom:1px solid #f0f4fa}
+.panel:last-child{border-bottom:none}
+.ph{font-size:13px;font-weight:700;color:#12335f;margin-bottom:9px;display:flex;align-items:center;gap:7px}
+.ph .tip{margin-left:auto;font-size:10px;color:var(--mut);font-weight:400}
+.frow{display:flex;align-items:center;gap:9px;margin-bottom:8px}
+.frow .k{width:70px;font-size:11.5px;color:#6b7f9e;flex-shrink:0}
+.frow .v{flex:1;height:30px;border:1.5px solid var(--line);border-radius:8px;font-size:12px;color:#33465f;display:flex;align-items:center;padding:0 9px;background:#fbfcfe}
+.frow .v.sel{cursor:pointer;justify-content:space-between}
+.frow .v.sel::after{content:"▾";color:#9db0cc;font-size:10px}
+.frow input.v{cursor:text}
+.dept{display:flex;flex-wrap:wrap;gap:5px}
+.dept span{font-size:10.5px;border:1.5px solid var(--line);border-radius:12px;padding:3px 9px;color:#44597c;cursor:pointer;background:#fff}
+.dept span.on{background:#eaf1ff;border-color:var(--blue);color:#1a5bd7;font-weight:600}
+.dept span:hover{border-color:var(--blue)}
+.fmtcheck{display:flex;flex-direction:column;gap:6px}
+.chk{display:flex;align-items:center;gap:8px;font-size:11.5px;color:#44597c}
+.chk .ic{width:16px;height:16px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:9px;color:#fff;flex-shrink:0}
+.chk .ic.ok{background:var(--ok)}.chk .ic.fix{background:#f5b308;color:#5c4200}
+.chk .fx{margin-left:auto;font-size:10.5px;color:var(--blue);font-weight:600}
+.imp{display:flex;gap:7px;flex-wrap:wrap}
+.imp span{display:flex;flex-direction:column;align-items:center;gap:4px;width:62px;padding:8px 0;border:1.5px solid #e4ebf5;border-radius:10px;font-size:10.5px;color:#44597c;cursor:pointer;background:#fbfcfe}
+.imp span:hover{border-color:var(--blue);color:var(--blue)}
+.imp span b{font-size:17px}
+.submit{display:flex;gap:9px;padding:13px 16px}
+.sbtn{flex:1;height:38px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;cursor:pointer;border:none}
+.sbtn.save{background:#fff;border:1.5px solid var(--line);color:#44597c}
+.sbtn.send{background:linear-gradient(135deg,#1a4fa8,var(--blue));color:#fff;box-shadow:0 5px 14px rgba(26,79,168,.3)}
+.wordcnt{font-size:11px;color:var(--mut);text-align:right;padding:6px 16px 0}
+/* 审核流 */
+.flow{display:flex;align-items:center;padding:20px 26px 14px}
+.fnode{flex:1;text-align:center}
+.fnode .c{width:42px;height:42px;border-radius:50%;margin:0 auto 7px;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;transition:.2s}
+.fnode .c.done{background:linear-gradient(135deg,var(--ok),#2fbd7a);color:#fff}
+.fnode .c.cur{background:linear-gradient(135deg,#1a4fa8,var(--blue));color:#fff;box-shadow:0 0 0 5px rgba(43,108,240,.18)}
+.fnode .c.wait{background:#eef2f8;color:#9db0cc}
+.fnode .t1{font-size:12.5px;font-weight:700;color:#2c3f5c}
+.fnode .t2{font-size:10.5px;color:#9db0cc;margin-top:2px}
+.fline{width:52px;height:3px;background:#e4ebf5;margin:0 -3px 26px;border-radius:2px;flex-shrink:0;transition:.3s}
+.fline.ok{background:linear-gradient(90deg,#2fbd7a,var(--blue))}
+.op .b{font-size:11px;padding:4px 11px;border-radius:7px;cursor:pointer;border:none;white-space:nowrap}
+.op .pass{background:var(--ok);color:#fff;font-weight:600}
+.op .back{background:#fff;border:1.5px solid #f0c8cc;color:var(--dan)}
+.op .view{background:#eaf1ff;color:#1a5bd7}
+.op .b:hover{opacity:.85}
+.duo{display:grid;grid-template-columns:1fr 1fr;gap:15px}
+/* 角色 */
+.roles{display:flex;gap:12px;padding:15px 18px;flex-wrap:wrap}
+.role{flex:1;min-width:200px;border:1.5px solid #e4ebf5;border-radius:11px;padding:12px 14px;background:#fbfcfe;transition:.2s}
+.role:hover{border-color:#c9daf5;box-shadow:0 6px 18px rgba(16,50,110,.08)}
+.role .h{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.role .h .ic{width:27px;height:27px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px}
+.role .h .nm{font-size:12.5px;font-weight:700;color:#12335f}
+.role .h .ct{margin-left:auto;font-size:10.5px;color:var(--mut)}
+.role ul{list-style:none}
+.role li{font-size:11px;color:#5b708f;padding:2.5px 0;display:flex;gap:6px}
+.role li::before{content:"·";color:var(--blue);font-weight:800}
+.role .rops{display:flex;gap:8px;margin-top:9px;padding-top:9px;border-top:1px dashed #e4ebf5}
+.role .rops a{font-size:11px;color:#1a5bd7;cursor:pointer;font-weight:600}
+.role .rops a:hover{text-decoration:underline}
+/* 角色管理弹层：成员表 + 权限开关 */
+.rmgRow{display:flex;align-items:center;gap:10px;padding:8px 2px;border-bottom:1px dashed #eef2f9;font-size:12px}
+.rmgRow:last-child{border-bottom:none}
+.rmgAva{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;color:#fff;font-weight:700;flex-shrink:0}
+.rmgInfo{flex:1}
+.rmgInfo .n{font-weight:700;color:#12335f}
+.rmgInfo .d{font-size:10.5px;color:#9db0cc;margin-top:1px}
+.sw{position:relative;width:34px;height:19px;border-radius:10px;background:#dbe4f0;cursor:pointer;transition:.2s;flex-shrink:0}
+.sw.on{background:#2f9a63}
+.sw::after{content:'';position:absolute;top:2px;left:2px;width:15px;height:15px;border-radius:50%;background:#fff;transition:.2s}
+.sw.on::after{left:17px}
+.prmRow{display:flex;align-items:center;justify-content:space-between;padding:7px 2px;border-bottom:1px dashed #eef2f9;font-size:12px;color:#33465f}
+.prmRow:last-child{border-bottom:none}
+.prmRow .d{font-size:10.5px;color:#9db0cc;margin-top:1px}
+/* 日志 */
+.log{padding:5px 18px 12px;max-height:260px;overflow-y:auto}
+.logrow{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px dashed #eef2f9;font-size:12px;animation:fadein .3s}
+.logrow:last-child{border-bottom:none}
+.logrow .tm{width:128px;color:#9db0cc;font-size:10.5px;flex-shrink:0}
+.logrow .who{width:100px;font-weight:600;color:#2c3f5c;flex-shrink:0}
+.logrow .who i{font-style:normal;font-size:9.5px;color:var(--mut);display:block;font-weight:400}
+.logrow .act{flex:1;color:#44597c}
+.logrow .act b{color:#2c3f5c}
+.lvl{font-size:9.5px;padding:2px 7px;border-radius:8px;font-weight:600;flex-shrink:0}
+.lvl.i{background:#eaf1ff;color:#1a5bd7}
+.lvl.w{background:#fff5e0;color:var(--warn)}
+.lvl.d{background:#fdecec;color:var(--dan)}
+/* 弹窗 */
+.mask{position:fixed;inset:0;background:rgba(10,25,50,.45);display:none;align-items:center;justify-content:center;z-index:99;backdrop-filter:blur(2px)}
+.mask.on{display:flex}
+.modal{width:400px;background:#fff;border-radius:14px;box-shadow:0 24px 60px rgba(8,30,70,.3);overflow:hidden;animation:pop .2s}
+@keyframes pop{from{transform:scale(.92);opacity:0}to{transform:scale(1);opacity:1}}
+.modal .mh{padding:16px 20px 0;display:flex;gap:10px;align-items:center}
+.modal .wi{width:32px;height:32px;border-radius:50%;background:#fdecec;color:var(--dan);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;flex-shrink:0}
+.modal .mt{font-size:14px;font-weight:800}
+.modal .mb{padding:11px 20px 15px;font-size:12.5px;color:#5b708f;line-height:1.7}
+.modal .mb b{color:var(--dan)}
+.modal .mf{display:flex;gap:9px;padding:0 20px 17px}
+.mbtn{flex:1;height:35px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:12.5px;font-weight:600;cursor:pointer;border:none}
+.mbtn.cancel{background:#f2f5fa;color:#5b708f}
+.mbtn.ok{background:var(--dan);color:#fff}
+.mbtn.blue{background:var(--blue);color:#fff}
+/* toast */
+.toast{position:fixed;top:70px;left:50%;transform:translateX(-50%) translateY(-16px);background:#123a77;color:#fff;font-size:13px;padding:10px 22px;border-radius:22px;box-shadow:0 10px 30px rgba(8,30,70,.35);opacity:0;pointer-events:none;transition:.25s;z-index:430}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+/* 价值条 */
+.valuebar{background:linear-gradient(115deg,#0c2d5e,#16468f 55%,#1e5bc4);border-radius:13px;padding:15px 22px;display:flex;gap:22px;align-items:center}
+.valuebar .vt{font-size:14px;font-weight:800;color:#fff;letter-spacing:2px;flex-shrink:0;display:flex;align-items:center;gap:9px}
+.valuebar .vt::before{content:"";width:4px;height:16px;border-radius:2px;background:#f5b308}
+.vitem{flex:1}
+.vitem .a{font-size:12.5px;font-weight:700;color:#ffd76a}
+.vitem .b{font-size:10.5px;color:#a9c2e8;margin-top:2px;line-height:1.5}
+.badge-done{display:inline-block;background:#e6f7ee;color:var(--ok);font-size:11px;border-radius:8px;padding:2px 9px;font-weight:600;margin-left:8px}
+/* ===== 自动演示 ===== */
+#demoCursor{position:fixed;left:0;top:0;width:0;height:0;z-index:400;pointer-events:none;transition:transform .45s cubic-bezier(.3,.8,.3,1)}
+#demoCursor::after{content:"";position:absolute;left:-3px;top:-2px;width:22px;height:22px;background:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 2l16 9-7 1.5L16 20l-3 1.5-3.2-7.4L4 18z" fill="%232b6cf0" stroke="white" stroke-width="1.4"/></svg>') no-repeat center/contain;filter:drop-shadow(0 3px 6px rgba(10,40,90,.4))}
+#demoBar{position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(90px);display:flex;align-items:center;gap:12px;background:linear-gradient(115deg,#0c2d5e,#16468f);color:#fff;padding:11px 20px;border-radius:26px;box-shadow:0 12px 34px rgba(8,30,70,.4);z-index:410;transition:.35s;max-width:76vw}
+#demoBar.on{transform:translateX(-50%) translateY(0)}
+#demoBar .idx{background:#f5b308;color:#5c4200;font-size:12px;font-weight:800;border-radius:14px;padding:3px 11px;flex-shrink:0}
+#demoBar .txt{font-size:13.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#demoCtl{position:fixed;right:18px;bottom:22px;display:flex;gap:7px;z-index:420}
+#demoCtl button{width:38px;height:38px;border-radius:50%;border:none;background:#123a77;color:#fff;font-size:15px;cursor:pointer;box-shadow:0 6px 18px rgba(8,30,70,.35);transition:.15s}
+#demoCtl button:hover{transform:translateY(-2px);background:#1a4fa8}
+#demoCtl button.loopon{background:#f5b308;color:#5c4200}
+.demo-hl{position:relative;outline:3px solid #f5b308 !important;outline-offset:2px;border-radius:8px;animation:pulse 1.2s infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(245,179,8,.45)}50%{box-shadow:0 0 0 9px rgba(245,179,8,0)}}
+/* 拖拽排序 */
+#tbody tr[draggable]{cursor:grab}
+#tbody tr.dragging{opacity:.4}
+#tbody tr.dragover{box-shadow:inset 0 3px 0 var(--blue)}
+#dragGhost{position:fixed;z-index:220;pointer-events:none;background:#fff;border:1.5px solid var(--blue);border-radius:9px;box-shadow:0 14px 34px rgba(26,79,168,.35);display:none;padding:8px 16px;font-size:12.5px;font-weight:600;color:#12335f;max-width:420px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#dragGhost .gd{display:inline-block;font-size:10px;background:#eaf1ff;color:#1a5bd7;border-radius:6px;padding:1px 7px;margin-right:8px;font-weight:700}
+/* 前台预览弹层 */
+#pvMask{position:fixed;inset:0;background:rgba(10,25,50,.5);display:none;align-items:center;justify-content:center;z-index:150;backdrop-filter:blur(3px)}
+#pvMask.on{display:flex}
+#pvBox{width:940px;max-width:93vw;height:84vh;background:#fff;border-radius:16px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 30px 80px rgba(8,30,70,.45)}
+#pvBox .pvBar{height:52px;display:flex;align-items:center;gap:14px;padding:0 18px;color:#fff;background:linear-gradient(90deg,#0c2d5e,#1a4fa8);transition:background .4s;flex-shrink:0}
+#pvBox.g .pvBar{background:linear-gradient(90deg,#123f2e,#14663f)}
+#pvBox .pvBar .pt{font-size:13.5px;font-weight:700;letter-spacing:1px}
+#pvBox .pvBar .taglive{font-size:10.5px;background:rgba(255,255,255,.18);border-radius:10px;padding:2px 10px}
+.pvSw{margin-left:auto;display:flex;gap:6px}
+.pvSw b{font-size:11.5px;font-weight:600;padding:5px 13px;border-radius:14px;cursor:pointer;background:rgba(255,255,255,.14);color:#dbe6f5;transition:.2s;display:flex;align-items:center;gap:5px}
+.pvSw b i{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.pvSw b[data-t=b] i{background:#4a8cf5}.pvSw b[data-t=g] i{background:#2f9a63}
+.pvSw b.on{background:#fff;color:#12335f;font-weight:700}
+.pvClose{width:30px;height:30px;border-radius:50%;border:none;background:rgba(255,255,255,.16);color:#fff;font-size:14px;cursor:pointer;flex-shrink:0}
+.pvClose:hover{background:rgba(255,255,255,.3)}
+.pvBody{flex:1;overflow-y:auto;padding:36px 54px}
+.pvBody h1{font-size:22px;text-align:center;color:#0c2d5e;transition:color .4s;line-height:1.5}
+#pvBox.g .pvBody h1{color:#123f2e}
+.pvBody .meta{text-align:center;font-size:12px;color:#8ba0bd;margin:12px 0 22px;padding-bottom:16px;border-bottom:1px dashed #e8eef7}
+.pvBody .meta b{transition:color .4s}
+#pvBox .pvBody .meta b{color:#2b6cf0}#pvBox.g .pvBody .meta b{color:#2f9a63}
+.pvBody p{font-size:15px;line-height:2;color:#33465f;text-indent:2em;text-align:justify;margin-bottom:12px}
+.pvBody .pvimg{height:170px;border-radius:12px;margin:14px 0 8px;background:linear-gradient(135deg,#7a9fd4,#a8c4e8);display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px}
+#pvBox.g .pvBody .pvimg{background:linear-gradient(135deg,#2f9a63,#7fc9a1)}
+.pvBody .cap{font-size:11.5px;color:#9db0cc;text-align:center;margin-bottom:16px}
+#pvContent h2{font-size:18px;text-align:center;color:#0c2d5e;margin-bottom:10px;transition:color .4s}
+#pvBox.g #pvContent h2{color:#123f2e}
+.pvFoot{padding:10px 18px;border-top:1px solid #f0f4fa;font-size:11px;color:#9db0cc;text-align:center;flex-shrink:0}
+/* 真实缩略图/图集/灯箱 */
+.rthumb{width:46px;height:32px;border-radius:6px;background-size:cover;background-position:center;flex-shrink:0;box-shadow:0 1px 4px rgba(16,50,110,.18)}
+.pvimg.real{background-size:cover;background-position:center;height:210px}
+.pvgal{margin:22px 0 6px;padding-top:16px;border-top:1px dashed #e8eef7}
+.pvgal .gt{font-size:14px;font-weight:800;color:#12335f;margin-bottom:4px;display:flex;align-items:center;gap:8px}
+.pvgal .gt::before{content:"";width:4px;height:14px;border-radius:2px;background:linear-gradient(180deg,var(--blue),#f5b308)}
+.pvgal .gsub{font-size:11px;color:#9db0cc;margin-bottom:12px}
+.pvgal .gwrap{display:grid;grid-template-columns:repeat(4,1fr);gap:9px}
+.pvgal .gitem{height:76px;border-radius:9px;background-size:cover;background-position:center;cursor:zoom-in;position:relative;transition:.2s}
+.pvgal .gitem:hover{transform:scale(1.05);box-shadow:0 10px 24px rgba(16,50,110,.3);z-index:2}
+.pvgal .gitem i{position:absolute;left:6px;bottom:5px;font-style:normal;font-size:9.5px;color:#fff;background:rgba(10,30,60,.6);border-radius:6px;padding:1px 7px;pointer-events:none}
+#lbMask{position:fixed;inset:0;background:rgba(5,15,35,.9);display:none;align-items:center;justify-content:center;z-index:300;cursor:zoom-out;flex-direction:column;gap:14px}
+#lbMask.on{display:flex}
+#lbMask img{max-width:88vw;max-height:80vh;border-radius:12px;box-shadow:0 30px 90px rgba(0,0,0,.65);animation:pop .2s}
+#lbMask .lbcap{color:#cfe0f5;font-size:13px;letter-spacing:1px}
+/* ===== 站点管理 ===== */
+.sitegrid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.sitecard{background:#fff;border-radius:13px;border:1px solid #eef3fa;padding:16px;position:relative;transition:.2s;cursor:pointer}
+.sitecard:hover{transform:translateY(-3px);box-shadow:0 10px 26px rgba(16,50,110,.12)}
+.sitecard .sic{width:40px;height:40px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:18px;color:#fff;margin-bottom:10px}
+.sitecard .snm{font-size:13.5px;font-weight:700;color:#12335f}
+.sitecard .surl{font-size:10.5px;color:#9db0cc;margin-top:2px}
+.sitecard .smeta{display:flex;gap:10px;margin-top:10px;font-size:10.5px;color:#6b7f9e}
+.sitecard .smeta b{color:#2b6cf0}
+.sitecard .stt{position:absolute;top:12px;right:12px}
+.sitecard.addnew{border:1.5px dashed #c4d3e8;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#8ba0bd;min-height:150px}
+.sitecard.addnew:hover{border-color:var(--blue);color:var(--blue)}
+/* 新建站点弹窗向导 */
+.wiz{display:flex;gap:9px;margin:4px 0 14px}
+.wiz .w{flex:1;text-align:center;font-size:10.5px;color:#9db0cc;position:relative;padding-top:6px}
+.wiz .w::before{content:"";display:block;width:26px;height:26px;border-radius:50%;background:#eef2f8;color:#8ba0bd;margin:0 auto 5px;line-height:26px;font-weight:700;font-size:12px}
+.wiz .w.on::before{background:var(--blue);color:#fff}
+.wiz .w.done::before{background:var(--ok);color:#fff;content:"✓"}
+.wiz .w:not(:last-child)::after{content:"";position:absolute;top:18px;left:calc(50% + 16px);width:calc(100% - 32px);height:2px;background:#e4ebf5}
+.wiz .w.done:not(:last-child)::after,.wiz .w.on:not(:last-child)::after{background:var(--blue)}
+.wizform .frow{margin-bottom:10px}
+.wizform .frow .k{width:88px}
+.wizform input.v,.wizform select.v{width:100%;height:32px;border:1.5px solid var(--line);border-radius:8px;font-size:12px;padding:0 10px;outline:none}
+.wizform input.v:focus{border-color:var(--blue)}
+/* 模板与组件 */
+.tplgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.tplcard{background:#fff;border-radius:12px;border:1px solid #eef3fa;overflow:hidden;transition:.2s}
+.tplcard:hover{transform:translateY(-3px);box-shadow:0 10px 26px rgba(16,50,110,.1)}
+.tplcard .thumb{height:96px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:700;letter-spacing:1px}
+.tplcard .tinfo{padding:11px 14px}
+.tplcard .tinfo .tn{font-size:12.5px;font-weight:700;color:#12335f}
+.tplcard .tinfo .td{font-size:10.5px;color:#9db0cc;margin-top:3px}
+.tplcard .tinfo .tuse{font-size:10px;color:#2b6cf0;margin-top:6px}
+/* 组件能力总览 */
+.compGuide{margin:10px 18px 0;background:#fbfdff;border:1px solid #e8eef7;border-radius:10px;padding:10px 14px;display:flex;flex-direction:column;gap:6px}
+.compGuide .cgRow{display:flex;gap:10px;font-size:11px;line-height:1.5}
+.compGuide .cgRow b{flex-shrink:0;color:#1a5bd7;background:#eef4ff;border-radius:6px;padding:1px 8px;font-size:10.5px}
+.compGuide .cgRow span{color:#6b7f9e}
+.comprow{display:flex;gap:9px;flex-wrap:wrap;padding:4px 2px}
+.comp{display:flex;align-items:center;gap:7px;background:#f8fbff;border:1.5px solid #e8eef7;border-radius:10px;padding:8px 13px;font-size:12px;color:#44597c;cursor:grab;transition:.15s}
+.comp:hover{border-color:var(--blue);color:var(--blue);transform:translateY(-2px)}
+.comp .ci{width:22px;height:22px;border-radius:6px;background:linear-gradient(135deg,#eaf1ff,#d5e3ff);display:flex;align-items:center;justify-content:center;font-size:11px}
+/* 内容选择弹层 */
+#cvPickMask{position:fixed;inset:0;z-index:230;background:rgba(10,25,50,.45);display:none;align-items:center;justify-content:center;backdrop-filter:blur(2px)}
+#cvPickMask.on{display:flex}
+#cvPickBox{width:430px;max-width:92vw;background:#fff;border-radius:16px;box-shadow:0 30px 80px rgba(8,30,70,.4);overflow:hidden;animation:cvIn .25s ease}
+#cvPickBox .cpHead{display:flex;align-items:center;gap:9px;padding:15px 18px;border-bottom:1px solid #eef2f9;font-size:14px;color:#12335f}
+#cvPickBox .cpHead .cpClose{margin-left:auto;cursor:pointer;color:#c2cfe2;font-size:15px;padding:2px 6px}
+#cvPickBox .cpHead .cpClose:hover{color:#e05252}
+#cvPickBox .cpSec{padding:13px 18px 4px}
+#cvPickBox .cpLb{font-size:11px;color:#8ba0bd;font-weight:700;letter-spacing:1px;margin-bottom:8px}
+#cvPickBox .cpOpts{display:flex;flex-direction:column;gap:7px;padding-bottom:6px}
+#cvPickBox .cpOpt{border:1.5px solid #e8eef7;border-radius:10px;padding:9px 13px;font-size:12.5px;color:#44597c;cursor:pointer;transition:.15s;display:flex;align-items:center;gap:8px}
+#cvPickBox .cpOpt:hover{border-color:#9db8e8;background:#fafcff}
+#cvPickBox .cpOpt.on{border-color:#2b6cf0;background:#eef4ff;color:#1a5bd7;font-weight:600}
+#cvPickBox .cpOpt.on::after{content:'✓';margin-left:auto;font-weight:800;color:#2b6cf0}
+#cvPickBox .cpSrcTag{font-size:11px;color:#1a5bd7;background:#eef4ff;border:1px dashed #9db8e8;border-radius:8px;padding:6px 10px;margin-bottom:8px}
+#cvPickBox .cpSrcTag::before{content:'🔗 '}
+#cvPickBox .cpOpt .opthumb{width:52px;height:34px;border-radius:6px;background:#dce6f4 center/cover no-repeat;flex-shrink:0}
+#cvPickBox .cpFoot{padding:13px 18px 16px;text-align:right}
+/* 组合预览弹层 */
+#cbPvMask{position:fixed;inset:0;z-index:240;background:rgba(10,25,50,.55);display:none;align-items:center;justify-content:center;backdrop-filter:blur(3px)}
+#cbPvMask.on{display:flex}
+#cbPvBox{width:560px;max-width:94vw;max-height:92vh;background:#fff;border-radius:16px;box-shadow:0 30px 80px rgba(8,30,70,.45);overflow:hidden;display:flex;flex-direction:column;animation:cvIn .25s ease}
+#cbPvBox .cpHead{display:flex;align-items:center;gap:9px;padding:14px 18px;border-bottom:1px solid #eef2f9;font-size:14px;color:#12335f}
+#cbPvBox .cpHead .cpClose{margin-left:auto;cursor:pointer;color:#c2cfe2;font-size:15px;padding:2px 6px}
+#cbPvBox .cpHead .cpClose:hover{color:#e05252}
+#cbPvBox .cbPvMeta{padding:9px 18px;font-size:11px;color:#1a5bd7;background:#eef4ff;border-bottom:1px solid #dce6f4}
+#cbPvBox .cbPvPage{overflow-y:auto;padding:14px 18px;background:#f4f7fc}
+#cbPvBox .cbPvFoot{padding:10px 18px 14px;font-size:11px;color:#6b7f9e;border-top:1px solid #eef2f9}
+/* 组合预览内的迷你首页 */
+.cbPvNav{height:30px;border-radius:8px;background:linear-gradient(90deg,#0c2d5e,#1e5bc4);color:#fff;font-size:10.5px;display:flex;align-items:center;padding:0 12px;gap:10px;font-weight:600}
+.cbPvNav .navlinks{margin-left:auto;display:flex;gap:8px;font-weight:400;font-size:9px;opacity:.85}
+.cbPvSec{background:#fff;border:1px solid #e4ebf5;border-radius:9px;margin-top:9px;padding:9px 11px;font-size:10.5px;color:#44597c}
+.cbPvSec .secTag{font-size:9px;color:#2b6cf0;background:#eef4ff;border-radius:5px;padding:1px 7px;font-weight:700;margin-bottom:6px;display:inline-block}
+.cbPvBanner{height:96px;border-radius:8px;background:#dce6f4 center/cover no-repeat;position:relative;overflow:hidden}
+.cbPvBanner .bantx{position:absolute;left:0;right:0;bottom:0;background:linear-gradient(transparent,rgba(8,30,70,.72));color:#fff;font-size:11px;font-weight:600;padding:13px 10px 6px}
+.cbPvNews{display:flex;gap:6px;font-size:10px;color:#44597c;padding:3px 0;border-bottom:1px dashed #eef2f9}
+.cbPvNews:last-child{border-bottom:none}
+.cbPvNews .nt{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cbPvNews .nd{color:#9db0cc;font-size:9px}
+.cbPvNums{display:flex;gap:7px}
+.cbPvNums div{flex:1;text-align:center;background:#f6f9fd;border-radius:7px;padding:7px 3px}
+.cbPvNums b{display:block;font-size:14px;color:#1e5bc4;font-weight:800}
+.cbPvNums span{font-size:9px;color:#8ba0bd}
+.cbPvVid{position:relative;height:92px;border-radius:8px;background:#0c1c33 center/cover;overflow:hidden}
+.cbPvVid::after{content:'▶ 宣传片《东方之约》';position:absolute;inset:0;margin:auto;width:fit-content;height:fit-content;background:rgba(255,255,255,.9);border-radius:14px;padding:4px 12px;font-size:10px;font-weight:700;color:#123a77}
+.cbPvLinks{display:flex;gap:6px;flex-wrap:wrap}
+.cbPvLinks span{font-size:9.5px;background:#f6f9fd;border:1px solid #e8eef7;border-radius:12px;padding:2px 9px;color:#44597c}
+.cbPvQrs{display:flex;gap:12px;justify-content:center}
+.cbPvQr{display:flex;flex-direction:column;align-items:center;gap:3px}
+.cbPvQr .qbox{width:40px;height:40px;border-radius:6px;border:1px solid #e8eef7;display:grid;grid-template-columns:repeat(3,1fr);gap:2px;padding:5px;background:#fff}
+.cbPvQr .qbox i{background:#44597c;border-radius:1px}
+.cbPvQr .qbox i:nth-child(even){background:#c9d8ef}
+.cbPvQr b{font-size:8.5px;color:#8ba0bd;font-weight:600}
+/* 搭建画布 */
+.canvasZone{min-height:190px;padding:14px 18px;display:flex;flex-direction:column;gap:9px;position:relative}
+.cvEmpty{border:2px dashed #c9d8ef;border-radius:12px;color:#9db0cc;font-size:12px;padding:34px 10px;text-align:center;background:#fbfdff;transition:.2s}
+.canvasZone.dragover .cvEmpty{border-color:#2b6cf0;background:#eef4ff;color:#2b6cf0}
+.cvBlock{background:#fff;border:1.5px solid #dce6f4;border-left:4px solid #2b6cf0;border-radius:10px;padding:12px 15px;font-size:12.5px;color:#2c3f5c;animation:cvIn .35s ease}
+.pvBox.g~.cvBlock{border-left-color:#2f9a63}
+.cvBlock .cvh{font-weight:700;font-size:12.5px;display:flex;align-items:center;gap:7px}
+.cvBlock .cvh .x{margin-left:auto;cursor:pointer;color:#c2cfe2;font-size:13px;padding:0 3px}
+.cvBlock .cvh .x:hover{color:#e05252}
+.cvBlock .cvh .mv{cursor:pointer;color:#9db0cc;font-size:12px;padding:0 4px;user-select:none}
+.cvBlock .cvh .mv:hover{color:#2b6cf0}
+.cvBlock .cvh .mv.dis{opacity:.25;cursor:default;pointer-events:none}
+.cvBlock.dragging{opacity:.4}
+.cvBlock.dropBefore{box-shadow:-4px 0 0 #2b6cf0}
+.cvBlock.dropAfter{box-shadow:4px 0 0 #2b6cf0}
+.cvBlock .cvd{font-size:10.5px;color:#9db0cc;margin-top:4px;line-height:1.5}
+/* 区块内的配置信息 */
+.cvBlock .cvlay{margin-left:auto;font-size:10px;background:#eef4ff;color:#2b6cf0;border-radius:6px;padding:1px 8px;font-weight:600}
+.cvBlock .cvsrc{margin-top:6px;font-size:10.5px;color:#6b7f9e;background:#f6f9fd;border-radius:6px;padding:4px 8px}
+/* 区块内真实渲染内容 */
+.cvBlock .cvBanner .upTag{position:absolute;top:7px;right:7px;font-size:9.5px;font-weight:700;background:#1a5bd7;color:#fff;border-radius:6px;padding:2px 8px;z-index:2}
+#cvPickBox .cpOpt .opthumb.up{border:1.5px dashed #9db8e8}
+.cvBlock .srcEcho{display:block;font-size:10px;color:#1a5bd7;background:#eef4ff;border-radius:6px;padding:3px 8px;margin-top:4px}
+.cvBlock .cvbody{margin-top:8px}
+.cvBanner{height:86px;border-radius:8px;background:#dce6f4 center/cover no-repeat;position:relative;overflow:hidden}
+.cvBanner .bantx{position:absolute;left:0;right:0;bottom:0;background:linear-gradient(transparent,rgba(8,30,70,.72));color:#fff;font-size:11.5px;font-weight:600;padding:14px 10px 7px}
+.cvNews{display:flex;align-items:center;gap:6px;font-size:11px;color:#44597c;padding:3.5px 0;border-bottom:1px dashed #eef2f9}
+.cvNews:last-child{border-bottom:none}
+.cvNews .nt{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cvNews .nd{color:#9db0cc;font-size:10px}
+.cvNews b{color:#2b6cf0;font-size:9px}
+.cvNums{display:flex;gap:8px}
+.cvNums>div{flex:1;text-align:center;background:#f6f9fd;border-radius:8px;padding:8px 4px}
+.cvNums b{display:block;font-size:15px;color:#1e5bc4;font-weight:800}
+.cvNums span{font-size:9.5px;color:#8ba0bd}
+.cvLinks{display:flex;gap:7px;flex-wrap:wrap}
+/* 链接启停态与统计 */
+.cvLinks span{font-size:10.5px;background:#f6f9fd;border:1px solid #e8eef7;border-radius:14px;padding:3px 10px;color:#44597c;cursor:pointer;transition:.15s}
+.cvLinks span.off{opacity:.38;text-decoration:line-through;background:#fafbfc}
+.cvLinks span:hover{border-color:#9db8e8}
+.cvLinks .lnkMgr{font-size:10px;color:#2b6cf0;cursor:pointer;border:1px dashed #9db8e8;background:#fff}
+/* 二维码区块（11.1-⑤ 新媒体矩阵） */
+.cvQrs{display:flex;gap:10px;justify-content:flex-start}
+.cvQr{display:flex;flex-direction:column;align-items:center;gap:5px}
+.cvQr .qrbox{width:52px;height:52px;border-radius:8px;border:1.5px solid #e8eef7;display:flex;align-items:center;justify-content:center;background:#fff}
+.cvQr .qrgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px}
+.cvQr .qrgrid i{width:6px;height:6px;background:#44597c;border-radius:1px;display:block}
+.cvQr .qrgrid i:nth-child(even){background:#c9d8ef}
+.cvQr b{font-size:9.5px;color:#6b7f9e;font-weight:600}
+.cvNums>div{cursor:text;transition:.15s}
+.cvNums>div:hover{background:#eef4ff}
+.cvNums b:focus{outline:2px solid #2b6cf0;outline-offset:2px;border-radius:4px}
+/* 数字编辑态（演示可见的输入过程） */
+.cvNums b.editing{outline:2px solid #2b6cf0;outline-offset:2px;border-radius:4px;background:#fff;min-width:34px;display:inline-block}
+.cvNums b.editing::after{content:'|';color:#2b6cf0;animation:caret 1s infinite;font-weight:400}
+@keyframes caret{50%{opacity:0}}
+/* 画布内 mini 视频播放器 */
+.cvVideo{position:relative;height:86px;border-radius:8px;overflow:hidden;background:#0c1c33 center/cover no-repeat;cursor:pointer}
+.cvVideo .vpBtn{position:absolute;inset:0;margin:auto;width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.92);display:flex;align-items:center;justify-content:center;font-size:14px;color:#123a77;font-weight:800;box-shadow:0 4px 14px rgba(0,0,0,.4)}
+.cvVideo .vpBar{position:absolute;left:0;right:0;bottom:0;height:16px;background:linear-gradient(transparent,rgba(0,0,0,.65));display:flex;align-items:center;gap:6px;padding:0 8px}
+.cvVideo .vpBar .vpTrack{flex:1;height:3px;background:rgba(255,255,255,.35);border-radius:2px;overflow:hidden}
+.cvVideo .vpFill{height:100%;width:0;background:#f5b308}
+.cvVideo .vpTime{font-size:8.5px;color:#dfe9f7;font-variant-numeric:tabular-nums}
+.cvVideo.playing .vpBtn{display:none}
+.cvBlock .cvhint{margin-top:6px;font-size:10px;color:#8ba0bd}
+/* 预览弹层视频播放器 */
+.pvVideo{margin:20px 0 10px;border-radius:14px;overflow:hidden;position:relative;height:300px;background:#0c1c33 center/cover;cursor:pointer}
+.pvVideo .vpTitle{position:absolute;top:12px;left:14px;font-size:12px;color:#fff;background:rgba(8,25,55,.55);border-radius:8px;padding:4px 12px;backdrop-filter:blur(4px)}
+.pvVideo .bigBtn{position:absolute;inset:0;margin:auto;width:64px;height:64px;border-radius:50%;background:rgba(255,255,255,.94);border:none;display:flex;align-items:center;justify-content:center;font-size:24px;color:#123a77;cursor:pointer;box-shadow:0 10px 34px rgba(0,0,0,.5);transition:.2s}
+.pvVideo .bigBtn:hover{transform:scale(1.08)}
+.pvVideo.playing .bigBtn{display:none}
+.pvVideo .vpCtl{position:absolute;left:0;right:0;bottom:0;padding:10px 16px 12px;background:linear-gradient(transparent,rgba(0,0,0,.7));display:flex;align-items:center;gap:12px}
+.pvVideo .vpCtl .vpTrack{flex:1;height:4px;background:rgba(255,255,255,.3);border-radius:2px;overflow:hidden}
+.pvVideo .vpCtl .vpFill{height:100%;width:0;background:#f5b308}
+.pvVideo .vpCtl .vpTime{font-size:11px;color:#e8f0fb;font-variant-numeric:tabular-nums}
+/* 编排讲解条 */
+.cvArrange{margin-top:8px;font-size:10.5px;color:#6b7f9e;background:#f6f9fd;border-left:3px solid #2b6cf0;border-radius:0 8px 8px 0;padding:6px 10px;line-height:1.6}
+.cvArrange b{color:#1a5bd7}.cvLinks span{font-size:10.5px;background:#f6f9fd;border:1px solid #e8eef7;border-radius:14px;padding:3px 10px;color:#44597c}
+.cvBlock .cvfx{margin-top:3px;font-size:10.5px;color:#1e9e63}
+.cvBlock.cvblue{border-left-color:#1e5bc4}
+.cvBlock.cvgreen{border-left-color:#2f9a63}
+@keyframes cvIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+/* 删除确认明细卡 */
+.delDetail{text-align:left;font-size:12.5px}
+.delDetail .ddT{font-size:11px;color:#8ba0bd;font-weight:700;letter-spacing:1px;margin-bottom:8px}
+.delDetail .ddRow{display:flex;align-items:center;gap:11px;background:#f8fbff;border:1px solid #e8eef7;border-radius:10px;padding:9px 12px}
+.delDetail .delThumb{width:64px;height:44px;border-radius:7px;background:#e8eef7 center/cover no-repeat;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.delDetail .ddTitle{font-weight:700;color:#2c3f5c;font-size:12.5px;line-height:1.35}
+.delDetail .ddMeta{font-size:11px;color:#8ba0bd;margin-top:4px;display:flex;align-items:center;gap:6px}
+.delDetail .ddNote{font-size:11px;color:#8ba0bd;margin-top:9px;line-height:1.5}
+.delDetail .ddNote b{color:#e67e22}
+/* 静态化发布 */
+.pubrow{display:flex;align-items:center;gap:12px;padding:11px 18px;border-bottom:1px dashed #eef2f9;font-size:12.5px}
+.pubrow:last-child{border-bottom:none}
+.pubrow .pi{width:32px;height:32px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+.pubrow .pt1{font-weight:600;color:#2c3f5c;flex:1}
+.pubrow .pt2{font-size:10.5px;color:#9db0cc;margin-top:2px}
+.prog{width:170px;height:8px;background:#eef2f8;border-radius:5px;overflow:hidden;flex-shrink:0}
+.prog i{display:block;height:100%;border-radius:5px;background:linear-gradient(90deg,#1a4fa8,#4a8cf5);transition:width .5s}
+.prog i.g{background:linear-gradient(90deg,#14663f,#2f9a63)}
+.ppubtn{height:30px;padding:0 15px;border-radius:15px;border:none;font-size:12px;font-weight:600;cursor:pointer;background:linear-gradient(135deg,#1a4fa8,#2b6cf0);color:#fff;flex-shrink:0}
+.ppubtn:hover{opacity:.9}
+.pghostbtn{height:30px;padding:0 12px;border-radius:15px;border:1px solid #c4d3e8;background:#fff;font-size:12px;font-weight:600;cursor:pointer;color:#44597c;flex-shrink:0}
+.pghostbtn:hover{border-color:#2b6cf0;color:#2b6cf0}
+.pghostbtn.rollback{border-color:#f0c4c4;color:#e05252}
+.pghostbtn.rollback:hover{background:#fff2f2;border-color:#e05252}
+.pghostbtn:disabled{opacity:.45;cursor:not-allowed}
+/* 发布预览弹层 */
+#pubPvMask{position:fixed;inset:0;z-index:250;background:rgba(10,25,50,.55);display:none;align-items:center;justify-content:center;backdrop-filter:blur(3px)}
+#pubPvMask.on{display:flex}
+.pubPvBox{width:720px;max-width:92vw;max-height:86vh;background:#fff;border-radius:16px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 24px 64px rgba(10,30,70,.35)}
+.pubPvHead{display:flex;align-items:center;gap:10px;padding:14px 20px;border-bottom:1px solid #eef2f9;font-size:14px;font-weight:700;color:#1e3a66}
+.pubPvHead .x{margin-left:auto;cursor:pointer;color:#9db0cc;font-size:16px;padding:0 4px}
+.pubPvHead .x:hover{color:#e05252}
+.pubPvBody{padding:18px 22px;overflow:auto;font-size:12.5px;color:#2c3f5c;line-height:1.7}
+.pubPvBody .pvSec{border:1px solid #dce6f4;border-left:4px solid #2b6cf0;border-radius:10px;padding:12px 16px;margin-bottom:12px;background:#fbfdff}
+.pubPvBody .pvSec b{font-size:13px}
+.pubPvBody .pvSec .d{font-size:11px;color:#9db0cc;margin-top:4px}
+.pubPvFoot{padding:12px 20px;border-top:1px solid #eef2f9;display:flex;gap:10px;justify-content:flex-end;background:#fafcff}
+/* 版本历史弹层 */
+#pubVerMask{position:fixed;inset:0;z-index:250;background:rgba(10,25,50,.55);display:none;align-items:center;justify-content:center;backdrop-filter:blur(3px)}
+#pubVerMask.on{display:flex}
+.pubVerBox{width:520px;max-width:90vw;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 24px 64px rgba(10,30,70,.35)}
+.pubVerRow{display:flex;align-items:center;gap:12px;padding:11px 20px;border-bottom:1px dashed #eef2f9;font-size:12.5px;color:#2c3f5c}
+.pubVerRow:last-child{border-bottom:none}
+.pubVerRow .vn{font-weight:700;color:#1a5bd7;width:86px}
+.pubVerRow .vt2{flex:1;color:#6b7f9e;font-size:11.5px}
+.pubVerRow .cur{font-size:10px;background:#e6f7ee;color:var(--ok);border-radius:6px;padding:1px 8px;font-weight:700}
+.console{background:#0d1b33;color:#8fd4a8;font-family:"SF Mono",Menlo,monospace;font-size:11.5px;line-height:1.8;padding:14px 18px;border-radius:0 0 13px 13px;max-height:170px;overflow-y:auto}
+.console .t{color:#5a7db0;margin-right:10px}
+.console .ok{color:#4ade80}
+/* ===== 双风格对比页 ===== */
+.vshead{display:flex;align-items:center;gap:14px;margin-bottom:14px}
+.vshead .vt{font-size:20px;font-weight:800;color:#12335f}
+.vshead .vd{font-size:12px;color:#8ba0bd}
+.vsgrid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.vscol{border-radius:16px;overflow:hidden;box-shadow:0 12px 34px rgba(16,50,110,.14);transition:.3s;cursor:pointer;position:relative}
+.vscol:hover{transform:translateY(-4px);box-shadow:0 18px 44px rgba(16,50,110,.2)}
+.vscol .vh{height:54px;display:flex;align-items:center;justify-content:center;gap:8px;color:#fff;font-size:14px;font-weight:800;letter-spacing:2px}
+.vscol.b .vh{background:linear-gradient(90deg,#0c2d5e,#1e5bc4)}
+.vscol.g .vh{background:linear-gradient(90deg,#123f2e,#2f9a63)}
+.vscol .vbody{background:#fff;padding:16px}
+.vscol .vmini{border-radius:10px;overflow:hidden;margin-bottom:10px}
+.vscol.b .vmini{background:linear-gradient(135deg,#1a4fa8,#4a8cf5)}
+.vscol.g .vmini{background:linear-gradient(135deg,#14663f,#2f9a63)}
+.vscol .vmini .mt{height:78px;display:flex;align-items:flex-end;padding:10px 14px;color:#fff;font-size:12px;font-weight:700}
+.vscol .vline{height:8px;border-radius:4px;margin-bottom:7px}
+.vscol.b .vline{background:#e3ecfb}
+.vscol.g .vline{background:#e2efe6}
+.vscol .vline.hl{width:55%}
+.vscol.b .vline.hl{background:#2b6cf0}
+.vscol.g .vline.hl{background:#2f9a63}
+.vscol .vfoot{display:flex;gap:6px;margin-top:10px}
+.vscol .vfoot i{flex:1;height:22px;border-radius:6px}
+.vscol.b .vfoot i:nth-child(1){background:#dbe7fb}.vscol.b .vfoot i:nth-child(2){background:#f0e4bd}.vscol.b .vfoot i:nth-child(3){background:#c9daf5}
+.vscol.g .vfoot i:nth-child(1){background:#d9ecdf}.vscol.g .vfoot i:nth-child(2){background:#f0e4bd}.vscol.g .vfoot i:nth-child(3){background:#cfe8d8}
+.vscol .pick{position:absolute;top:62px;right:12px;background:#f5b308;color:#5c4200;font-size:10px;font-weight:800;border-radius:10px;padding:3px 10px;opacity:0;transition:.3s}
+.vscol:hover .pick{opacity:1}
+.vslider-wrap{position:relative;border-radius:16px;overflow:hidden;box-shadow:0 14px 40px rgba(16,50,110,.18);height:560px;background:#fff;user-select:none}
+.vsimg{position:absolute;top:0;left:0;width:100%;pointer-events:none}
+.vslider-clip{position:absolute;inset:0;overflow:hidden;clip-path:inset(0 0 0 50%)}
+.vslider-clip .vsimg{width:100%}
+.vslider-handle{position:absolute;top:0;bottom:0;left:50%;width:4px;background:#fff;cursor:ew-resize;box-shadow:0 0 0 2px rgba(43,108,240,.5),0 4px 18px rgba(8,30,70,.4);z-index:5}
+.vslider-handle span{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:44px;height:44px;border-radius:50%;background:#fff;color:#2b6cf0;font-size:13px;font-weight:800;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 20px rgba(8,30,70,.35);letter-spacing:-2px}
+.vtag{position:absolute;top:14px;z-index:6;background:linear-gradient(90deg,#0c2d5e,#1e5bc4);color:#fff;font-size:12px;font-weight:700;border-radius:16px;padding:5px 14px;letter-spacing:1px;box-shadow:0 6px 18px rgba(8,30,70,.35)}
+.vshint{text-align:center;font-size:12px;color:#6b7f9e;padding:9px 0 2px}
+/* 敏感词库 */
+.sensadd{display:flex;gap:9px;padding:14px 18px;border-bottom:1px solid #f0f4fa}
+.sensadd input{flex:1;height:34px;border:1.5px solid var(--line);border-radius:8px;font-size:12.5px;padding:0 12px;outline:none}
+.sensadd input:focus{border-color:var(--blue)}
+.sensword{display:flex;align-items:center;padding:9px 18px;border-bottom:1px dashed #eef2f9;font-size:12.5px;animation:fadein .3s}
+.sensword:last-child{border-bottom:none}
+.sensword span{flex:1;color:#33465f;font-weight:600}
+.sensword a{color:var(--dan);cursor:pointer;font-size:11.5px}
+.sensword a:hover{text-decoration:underline}
+.senscnt{font-size:10.5px;color:#9db0cc}
+.vsbar{display:flex;gap:12px;margin-top:14px}
+.vsitem{flex:1;background:#fff;border-radius:12px;border:1px solid #eef3fa;padding:13px 16px}
+.vsitem .a{font-size:12.5px;font-weight:700;color:#12335f}
+.vsitem .b{font-size:11px;color:#8ba0bd;margin-top:4px;line-height:1.6}
+</style></head>
+<body>
+
+<div class="sidebar">
+  <div class="slogo"><div class="b">群</div><div class="t">站群管理平台<small>交互演示版</small></div></div>
+  <div class="snav">
+    <div class="sgroup">内容中心</div>
+    <div class="sitem" data-pg="dash"><span class="ic">🏠</span>工作台总览</div>
+    <div class="sitem on" data-pg="list"><span class="ic">📝</span>稿件管理<span class="tag" id="navPending">6</span></div>
+    <div class="sitem" data-pg="edit"><span class="ic">✍</span>新建稿件</div>
+    <div class="sitem" data-pg="audit"><span class="ic">✅</span>审核中心<span class="tag" id="navAudit">6</span></div>
+    <div class="sgroup">站点建设</div>
+    <div class="sitem" data-pg="site"><span class="ic">🏗</span>站点管理<span class="tag" id="navSite">8</span></div>
+    <div class="sitem" data-pg="tpl"><span class="ic">🧩</span>模板与组件</div>
+    <div class="sitem" data-pg="pub"><span class="ic">📤</span>静态化发布</div>
+    <div class="sitem" data-pg="live"><span class="ic">🌐</span>官网成品预览</div>
+    <div class="sgroup">系统管理</div>
+    <div class="sitem" data-pg="audit" data-anchor="rolesCard"><span class="ic">👥</span>角色权限</div>
+    <div class="sitem" data-pg="audit" data-anchor="logCard"><span class="ic">📋</span>操作日志</div>
+    <div class="sitem" data-pg="sens"><span class="ic">🔑</span>敏感词库</div>
+    <div class="sitem" data-pg="trash"><span class="ic">🗑</span>回收站<span class="tag" id="trashCnt" style="background:#eef2f8;color:#6b7f9e">0</span></div>
+  </div>
+  <div class="sfoot"><div class="av">管</div><div><div class="nm">系统管理员</div><div class="rl">主站 · 全部站点</div></div></div>
+</div>
+
+<div class="main">
+  <div class="topbar">
+    <div class="crumb" id="crumb">内容中心 / <b>稿件管理</b></div>
+    <div class="spacer"></div>
+    <div class="tbtn">🔔 待办 <span id="todoCnt">6</span></div>
+    <div class="tbtn" onclick="toast('演示版：接入A1单点登录后自动获取身份')">👤 管理员</div>
+    <button class="tbtn" onclick="goto('live')" title="打开新版官网成品（单页滚动式），前台真容" style="background:linear-gradient(135deg,#0e8a5f,#12a86f);color:#fff;border:none;font-weight:700" id="btnLive">🌐 官网成品</button>
+    <button class="tbtn" onclick="goto('vs')" title="两套设计风格对比选型" style="color:#2b6cf0;border-color:#c9daf5;font-weight:600">🔵⇄🟢 风格对比</button>
+    <button class="tbtn pri" id="dStart" style="background:linear-gradient(135deg,#1a4fa8,var(--blue));color:#fff;border:none;font-weight:700" onclick="startDemo()" title="含中文语音解说，控制条可用 🔇 关闭">▶ 自动演示</button>
+  </div>
+
+  <div class="pages">
+
+    <!-- ========= 稿件管理 ========= -->
+    <div class="page on" id="pg-list">
+      <div class="pagetitle">
+        <h1>稿件管理<span>官网主站 · 共 <span id="totalCnt">6</span> 篇</span></h1>
+        <div class="pagebtns">
+          <button class="btn gho" onclick="toast('演示：支持 Word/PDF/Excel/图片/视频 批量导入，导入后自动规范排版')">📥 批量导入</button>
+          <button class="btn pri" onclick="goto('edit')">＋ 新建稿件</button>
+        </div>
+      </div>
+      <div class="kpis">
+        <div class="kpi"><div class="l">今日新增稿件</div><div class="n">23<i>篇</i></div><div class="d up">↑ 较昨日 +4</div></div>
+        <div class="kpi o"><div class="l">待审核</div><div class="n" id="kpiAudit">6<i>篇</i></div><div class="d wn">2 篇超 24h 未处理</div></div>
+        <div class="kpi g"><div class="l">本月已发布</div><div class="n" id="kpiPubMonth">186<i>篇</i></div><div class="d up">敏感词拦截 9 次</div></div>
+        <div class="kpi r"><div class="l">回收站</div><div class="n" id="kpiTrash">0<i>篇</i></div><div class="d">30 天内可恢复</div></div>
+        <div class="kpi r" style="display:none"><div class="l">已下线/驳回</div><div class="n" id="kpiOff">3<i>篇</i></div><div class="d">需补充材料后重报</div></div>
+        <div class="kpi p"><div class="l">静态化任务</div><div class="n">5<i>个</i></div><div class="d up">最近一次 12:40 完成</div></div>
+      </div>
+      <div class="card">
+        <div class="toolbar">
+          <input class="finput" id="kw" placeholder="🔍 标题/正文关键词检索" oninput="renderTable()">
+          <select class="fsel" id="fCat" onchange="renderTable()"><option value="">栏目：全部</option><option>东方要闻</option><option>通知公告</option><option>东方视点</option><option>综合新闻</option></select>
+          <select class="fsel" id="fStt" onchange="renderTable()"><option value="">状态：全部</option><option value="pub">已发布</option><option value="rev">待审核</option><option value="drf">草稿</option><option value="off">已禁用</option></select>
+          <select class="fsel" id="fWho" onchange="renderTable()"><option value="">发布人：全部</option><option>党委宣传部</option><option>教务处</option><option>融媒体中心</option><option>学生工作处</option><option>信息化办公室</option></select>
+          <div class="spacer"></div>
+          <button class="taction gho" id="bExport" onclick="doExport()" disabled>📤 批量导出</button>
+          <button class="taction gho" id="bOn" onclick="doBatch('启用')" disabled>⬆ 批量启用</button>
+          <button class="taction gho" id="bOff" onclick="doBatch('禁用')" disabled>⬇ 批量禁用</button>
+          <button class="taction dan" id="bDel" onclick="askDelete()" disabled>🗑 批量删除</button>
+        </div>
+        <table>
+          <thead><tr><th style="width:34px"><span class="ck" id="ckAll" onclick="toggleAll()"></span></th><th style="width:58px">缩略图</th><th>标题</th><th style="width:90px">栏目</th><th style="width:76px">状态</th><th style="width:96px">发布人</th><th style="width:88px">发布日期</th><th style="width:150px">使用站点</th><th style="width:44px">排序</th><th style="width:156px">操作</th></tr></thead>
+          <tbody id="tbody"></tbody>
+        </table>
+        <div class="pager"><span class="info" id="selInfo">未选中条目 · 高危操作需二次确认</span><span class="pg on">1</span><span class="pg">2</span><span class="pg">3</span><span class="pg">…</span><span class="pg">65</span></div>
+      </div>
+      <div class="valuebar">
+        <div class="vt">补充需求落实</div>
+        <div class="vitem"><div class="a">③ 批量操作与排序</div><div class="b">勾选后可批量删除/启用/禁用/导出；置顶、上移、下移灵活调整顺序</div></div>
+        <div class="vitem"><div class="a">④ 多条件组合查询</div><div class="b">关键词 + 栏目 + 状态 + 发布人组合筛选，实时生效</div></div>
+        <div class="vitem"><div class="a">⑤ 高危二次确认</div><div class="b">删除等不可逆操作强制弹窗确认，全过程写入操作日志</div></div>
+      </div>
+    </div>
+
+    <!-- ========= 稿件编辑器 ========= -->
+    <div class="page" id="pg-edit">
+      <div class="pagetitle">
+        <h1>新建稿件<span>排版自动规范化 · 多格式导入 · 敏感词实时检测</span></h1>
+        <div class="pagebtns"><button class="btn gho" onclick="goto('list')">← 返回列表</button></div>
+      </div>
+      <div class="edgrid">
+        <div class="card">
+          <div class="edhead"><div class="t" id="edTitle">关于开展2026-2027学年第一学期期中教学检查的通知</div><span class="stt drf" id="edState">草稿 · 未保存</span></div>
+          <div class="fmtbar">
+            <button class="fb" onclick="fmt('bold')"><b>B</b></button>
+            <button class="fb" onclick="fmt('italic')"><i>I</i></button>
+            <button class="fb" onclick="fmt('underline')"><u>U</u></button>
+            <div class="fsep"></div>
+            <button class="fb" onclick="fmt('justifyLeft')">⬅</button>
+            <button class="fb" onclick="fmt('justifyCenter')">↔</button>
+            <button class="fb" onclick="fmt('justifyFull')">⬌ 两端对齐</button>
+            <div class="fsep"></div>
+            <button class="fb" onclick="toast('已按规范统一：首行缩进 2em')">首行缩进 ✓</button>
+            <button class="fb" onclick="toast('已按规范统一：行间距 1.9')">行距 1.9 ✓</button>
+            <div class="fsep"></div>
+            <button class="fb" onclick="toast('演示：插入图片后自动居中，不影响上下文排版')">🖼 图片</button>
+            <button class="fb" onclick="toast('演示：插入视频后自动居中播放')">🎬 视频</button>
+            <button class="fb" onclick="importFile('Word')">📄 Word 导入</button>
+            <button class="fb" onclick="importFile('PDF')">📄 PDF 导入</button>
+            <button class="fb" onclick="importFile('Excel')">📊 Excel 导入</button>
+          </div>
+          <div class="doc" id="doc" contenteditable="true">
+            <h2>关于开展2026-2027学年第一学期期中教学检查的通知</h2>
+            <div class="meta">供稿部门：<b>教务处</b>（标准称谓）　|　发布日期：2026-10-18</div>
+            <p>各教学单位：为全面掌握本学期教学运行情况，保障教学质量稳步提升，经研究决定开展本学期期中教学检查工作。现将有关事项通知如下。</p>
+            <p>一、检查范围：本学期开设的全部本科课程，含理论课、实验课与实践环节，重点检查课堂教学秩序、教学进度执行及作业批改情况。</p>
+            <div class="imgbox">（图片居中展示 · 上下文排版不受影响 · 建议尺寸 1200×675）</div>
+            <div class="cap">▲ 图 1　期中教学检查工作安排示意图</div>
+            <p>二、检查方式：采取单位自查与学校抽查相结合的方式，各单位须于第10周前完成自查并提交自查报告。</p>
+          </div>
+          <div class="wordcnt">正文字数：<b id="wc">0</b> 字 · <span id="sensResult" style="color:var(--ok)">敏感词检测：通过</span></div>
+        </div>
+        <div>
+          <div class="card">
+            <div class="panel">
+              <div class="ph">① 排版自动规范化 <span class="tip">提交时统一</span></div>
+              <div class="fmtcheck">
+                <div class="chk"><span class="ic ok">✓</span>行间距 1.9 · 全文统一</div>
+                <div class="chk"><span class="ic ok">✓</span>宋体 14px · 全文统一</div>
+                <div class="chk"><span class="ic ok">✓</span>段落首行缩进 2em</div>
+                <div class="chk"><span class="ic ok">✓</span>文字两端对齐</div>
+                <div class="chk"><span class="ic fix">!</span>个别加粗/字号保留<span class="fx">自定义</span></div>
+              </div>
+            </div>
+            <div class="panel">
+              <div class="ph">② 多类型文件导入 <span class="tip">导入后排版不错乱</span></div>
+              <div class="imp">
+                <span onclick="importFile('Word')"><b>📄</b>Word</span><span onclick="importFile('PDF')"><b>📕</b>PDF</span><span onclick="importFile('Excel')"><b>📊</b>Excel</span><span onclick="importFile('图片')"><b>🖼</b>图片</span><span onclick="importFile('视频')"><b>🎬</b>视频</span>
+              </div>
+            </div>
+            <div class="panel">
+              <div class="ph">发布设置</div>
+              <div class="frow"><span class="k">目标站点</span><div class="v sel" onclick="toast('演示：单站/多站发布切换')">官网主站</div></div>
+              <div class="frow"><span class="k">所属栏目</span><div class="v sel" onclick="toast('演示：栏目树选择')">通知公告</div></div>
+              <div class="frow"><span class="k">发布日期</span><input class="v" type="date" value="2026-10-18" title="⑩ 发布日期支持手动修改"></div>
+              <div class="frow" style="align-items:flex-start"><span class="k" style="padding-top:4px">供稿部门</span>
+                <div class="dept" id="depts"><span class="on">教务处</span><span>党委宣传部</span><span>学生工作处</span><span>融媒体中心</span></div>
+              </div>
+            </div>
+            <div class="submit">
+              <button class="sbtn save" onclick="saveDraft()">存草稿</button>
+              <button class="sbtn save" style="border-color:#c9daf5;color:#1a5bd7;font-weight:700" onclick="previewFromEditor()">🔍 预览</button>
+              <button class="sbtn send" onclick="submitAudit()">提交审核 →</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="valuebar">
+        <div class="vt">补充需求落实</div>
+        <div class="vitem"><div class="a">① 排版标准化+自定义</div><div class="b">默认统一行距/字体/缩进/对齐，保留加粗、字号等个性化权限</div></div>
+        <div class="vitem"><div class="a">⑨ 多媒体稳定</div><div class="b">图片视频居中展示不挤上下文，兼容主流格式</div></div>
+        <div class="vitem"><div class="a">⑩ 日期可改+称谓规范</div><div class="b">发布日期手动可改适配补发；供稿部门按标准称谓库统一</div></div>
+      </div>
+    </div>
+
+    <!-- ========= 审核中心 ========= -->
+    <div class="page" id="pg-audit">
+      <div class="pagetitle" id="auditTitle"><h1>审核中心<span>先审后发 · 多级审核流</span></h1></div>
+      <div class="card" id="flowCard">
+        <div class="chead"><div class="t">多级审核流程</div><span class="more" id="flowName">官网主站 · 通知公告栏目</span></div>
+        <div class="flow">
+          <div class="fnode"><div class="c done" id="fn0">✓</div><div class="t1">提交</div><div class="t2">教务处 · 王老师</div></div>
+          <div class="fline ok" id="fl0"></div>
+          <div class="fnode"><div class="c done" id="fn1">✓</div><div class="t1">部门初审</div><div class="t2">已通过</div></div>
+          <div class="fline ok" id="fl1"></div>
+          <div class="fnode"><div class="c done" id="fn2">✓</div><div class="t1">敏感词复审</div><div class="t2">系统自动 · 0命中</div></div>
+          <div class="fline" id="fl2"></div>
+          <div class="fnode"><div class="c cur" id="fn3">3</div><div class="t1">宣传部终审</div><div class="t2">待处理</div></div>
+          <div class="fline" id="fl3"></div>
+          <div class="fnode"><div class="c wait" id="fn4">4</div><div class="t1">静态化发布</div><div class="t2">通过后自动执行</div></div>
+        </div>
+      </div>
+      <div class="card" id="pendingCard">
+        <div class="chead"><div class="t">待审稿件（<span id="auditCnt">3</span>）</div><span class="more">按等待时长排序</span></div>
+        <table>
+          <thead><tr><th>标题</th><th style="width:92px">栏目</th><th style="width:88px">环节</th><th style="width:104px">提交人</th><th style="width:76px">等待</th><th style="width:180px">操作</th></tr></thead>
+          <tbody id="auditBody"></tbody>
+        </table>
+      </div>
+      <div class="duo">
+        <div class="card">
+          <div class="chead" id="rolesCard"><div class="t">岗位角色权限</div><span class="more">⑥ 按职责划分 · 杜绝越权</span></div>
+          <div class="roles">
+            <div class="role"><div class="h"><div class="ic" style="background:#eaf1ff">✍</div><div class="nm">编辑</div><div class="ct" id="cntEditor">142人</div></div><ul><li>本部门稿件新建/编辑</li><li>提交审核 · 不可发布</li><li>仅见本部门数据</li></ul><div class="rops"><a onclick="openRoleMgr('editor')">👥 成员管理</a><a onclick="openRolePrm('editor')">⚙ 权限配置</a></div></div>
+            <div class="role"><div class="h"><div class="ic" style="background:#fff7e4">🔍</div><div class="nm">部门审核</div><div class="ct" id="cntAudit">28人</div></div><ul><li>本部门稿件初审/驳回</li><li>本部门栏目管理</li><li>跨部门内容不可见</li></ul><div class="rops"><a onclick="openRoleMgr('audit')">👥 成员管理</a><a onclick="openRolePrm('audit')">⚙ 权限配置</a></div></div>
+            <div class="role"><div class="h"><div class="ic" style="background:#e9f9f0">🛡</div><div class="nm">终审发布</div><div class="ct" id="cntFinal">6人</div></div><ul><li>全站终审 · 触发静态化</li><li>置顶/头条/下线</li><li>高危操作二次确认</li></ul><div class="rops"><a onclick="openRoleMgr('final')">👥 成员管理</a><a onclick="openRolePrm('final')">⚙ 权限配置</a></div></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="chead" id="logCard"><div class="t">操作日志</div><span class="more">⑦ 全程留痕 · 不可篡改</span></div>
+          <div class="log" id="logList"></div>
+        </div>
+      </div>
+      <div class="valuebar">
+        <div class="vt">补充需求落实</div>
+        <div class="vitem"><div class="a">⑤ 高危二次确认</div><div class="b">通过并发布/批量删除均需确认，驳回须填写理由</div></div>
+        <div class="vitem"><div class="a">⑥ 精细化权限</div><div class="b">编辑/部门审核/终审/系统管理四级角色，数据按岗隔离</div></div>
+        <div class="vitem"><div class="a">⑦ 日志溯源</div><div class="b">操作人/时间/内容/状态全程记录，本次演示可实时验证</div></div>
+      </div>
+    </div>
+
+    <!-- ========= 站点管理 ========= -->
+    <div class="page" id="pg-site">
+      <div class="pagetitle">
+        <h1>站点管理<span>站群统一管理 · <span id="siteCnt">8</span> 个站点</span></h1>
+        <div class="pagebtns"><button class="btn pri" onclick="openWiz()">＋ 新建站点</button></div>
+      </div>
+      <div class="kpis">
+        <div class="kpi"><div class="l">站点总数</div><div class="n" id="kpiSite">8<i>个</i></div><div class="d up">全部运行正常</div></div>
+        <div class="kpi g"><div class="l">本月全站发布</div><div class="n">186<i>篇</i></div><div class="d up">静态化成功率 100%</div></div>
+        <div class="kpi o"><div class="l">待巡检站点</div><div class="n">1<i>个</i></div><div class="d wn">继续教育学院 · 周五前</div></div>
+        <div class="kpi p"><div class="l">模板复用率</div><div class="n">86<i>%</i></div><div class="d">统一组件 · 风格可控</div></div>
+      </div>
+      <div class="sitegrid" id="siteGrid"></div>
+      <div class="valuebar" style="margin-top:16px">
+        <div class="vt">站群核心能力</div>
+        <div class="vitem"><div class="a">一库共享</div><div class="b">稿件一次提交，按权限分发多站点，无需重复维护</div></div>
+        <div class="vitem"><div class="a">独立域名/模板</div><div class="b">各站点独立模板与栏目树，校级统一管控风格底线</div></div>
+        <div class="vitem"><div class="a">分级授权</div><div class="b">校级管理员建站授权，二级部门仅管本站内容</div></div>
+      </div>
+    </div>
+
+    <!-- ========= 模板与组件 ========= -->
+    <div class="page" id="pg-tpl">
+      <div id="tplFlowBanner" style="display:none;align-items:center;gap:8px;margin:0 0 10px;padding:9px 16px;border:1px solid #cfe0ff;background:#f0f6ff;border-radius:10px;font-size:12px;color:#1e3a66"></div>
+      <div class="pagetitle">
+        <h1>模板与组件<span>可视化搭建 · 拖拽即用</span></h1>
+        <div class="pagebtns">
+          <button class="btn gho" onclick="toast('演示：从组件库拖入右侧画布即可完成页面搭建')">🧲 拖拽搭建模式</button>
+          <button class="btn pri" onclick="toast('演示：新建空白模板，基于组件库自由组合')">＋ 新建模板</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="chead"><div class="t">常用组件库 <span style="font-size:10.5px;color:#9db0cc;font-weight:400">（演示：可拖拽）</span></div><span class="more">23 类组件 · 持续扩充</span></div>
+        <div class="compGuide" id="compGuide">
+          <div class="cgRow"><b>内容展示类</b><span>轮播图 · 要闻列表 · 通知公告（标题全展示，参考网站 C）· 图集画廊 · 视频专区 —— 绑定栏目自动更新</span></div>
+          <div class="cgRow"><b>数据交互类</b><span>数字展示（点击可改指标）· 日历日程 · 搜索框 · 表单报名 —— 数据来自系统设置或用户提交</span></div>
+          <div class="cgRow"><b>导航工具类</b><span>友情链接（常用链接库）· 二维码（官方微信/抖音/微博）· 栏目导航 · 面包屑 —— 维护站点结构，即拖即用</span></div>
+          <div class="cgRow"><b>📋 调研表对照</b><span>11.1-⑤ 首页含官方新媒体二维码 ｜ 11.2-⑨ 视频等多媒体流畅稳定播放 ｜ 第4节「常用链接」5 条（山东财金集团/山东财经大学/山东教育厅/学信网/山东省人社厅）为友情链接默认数据源</span></div>
+        </div>
+        <div class="panel comprow" id="compRow" style="border-bottom:none;padding:14px 18px">
+          <div class="comp" draggable="true"><span class="ci">📢</span>通知公告</div>
+          <div class="comp" draggable="true"><span class="ci">🖼</span>轮播图</div>
+          <div class="comp" draggable="true"><span class="ci">📰</span>要闻列表</div>
+          <div class="comp" draggable="true"><span class="ci">🎬</span>视频专区</div>
+          <div class="comp" draggable="true"><span class="ci">📊</span>数字展示</div>
+          <div class="comp" draggable="true"><span class="ci">🗓</span>日历日程</div>
+          <div class="comp" draggable="true"><span class="ci">🔗</span>友情链接</div>
+          <div class="comp" draggable="true"><span class="ci">📱</span>二维码</div>
+          <div class="comp" draggable="true"><span class="ci">🔍</span>搜索框</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="chead"><div class="t">页面搭建画布 <span style="font-size:10.5px;color:#9db0cc;font-weight:400">（拖组件进来 · ▲▼ 或拖拽调整上下顺序）</span></div>
+          <span class="more" style="cursor:pointer;color:#1a5bd7;font-weight:700;margin-right:12px" onclick="openCvPv()">🖥 组合预览</span>
+          <span class="more" style="cursor:pointer;color:#1e9e63;font-weight:700;margin-right:12px" onclick="publishBuiltPage()">🚀 发布此页面</span>
+          <span class="more" style="cursor:pointer;color:#e05252" onclick="clearCanvas()">🗑 清空画布</span></div>
+        <div class="canvasZone" id="canvasZone">
+          <div class="cvEmpty" id="cvEmpty">🧲 从上方组件库拖入组件，这里会实时生成页面区块</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="chead"><div class="t">内置模板 <span style="font-size:10.5px;color:#9db0cc;font-weight:400">（点击模板卡查看/管理绑定的站点）</span></div><span class="more">建站时选模板 = 绑定 · 换模板不丢内容</span></div>
+        <div class="tplgrid" style="padding:16px 18px">
+          <div class="tplcard" style="cursor:pointer" onclick="openTplBind('科技蓝')"><div class="thumb" style="background:linear-gradient(135deg,#0c2d5e,#1e5bc4)">科技蓝 · 主站模板</div><div class="tinfo"><div class="tn">风格一 · 现代科技蓝</div><div class="td">大图 Banner + 数字展示 + 通知侧栏</div><div class="tuse" id="tuse科技蓝">—</div></div></div>
+          <div class="tplcard" style="cursor:pointer" onclick="openTplBind('学术绿')"><div class="thumb" style="background:linear-gradient(135deg,#123f2e,#2f9a63)">学术绿 · 主站模板</div><div class="tinfo"><div class="tn">风格二 · 学术雅致绿</div><div class="td">留白雅致 + 五栏目独立版面</div><div class="tuse" id="tuse学术绿">—</div></div></div>
+          <div class="tplcard" style="cursor:pointer" onclick="openTplBind('招生季')"><div class="thumb" style="background:linear-gradient(135deg,#5b3a8f,#8b6bd8)">专题 · 招生季</div><div class="tinfo"><div class="tn">2026 招生专题模板</div><div class="td">院系导航 + 报名入口 + 数据看板</div><div class="tuse" id="tuse招生季">—</div></div></div>
+          <div class="tplcard" style="cursor:pointer" onclick="openTplBind('院系版')"><div class="thumb" style="background:linear-gradient(135deg,#8a4a2f,#c47a4a)">院系 · 通用系版</div><div class="tinfo"><div class="tn">二级学院通用模板</div><div class="td">师资展示 + 科研动态 + 党建专栏</div><div class="tuse" id="tuse院系版">—</div></div></div>
+          <div class="tplcard" style="cursor:pointer" onclick="openTplBind('部门版')"><div class="thumb" style="background:linear-gradient(135deg,#2a6db5,#5a9bd8)">部门 · 职能版</div><div class="tinfo"><div class="tn">职能部门模板</div><div class="td">办事指南 + 下载专区 + 咨询入口</div><div class="tuse" id="tuse部门版">—</div></div></div>
+          <div class="tplcard" onclick="toast('演示：基于当前模板一键复制，改配色即成新模板')" style="cursor:pointer"><div class="thumb" style="background:linear-gradient(135deg,#e4ebf5,#c4d3e8);color:#44597c">＋ 复制派生</div><div class="tinfo"><div class="tn">一键复制模板</div><div class="td">复制现有模板改配色/栏目，分钟级建站</div><div class="tuse" style="color:#8ba0bd">推荐</div></div></div>
+        </div>
+      </div>
+      <div class="valuebar">
+        <div class="vt">搭建闭环</div>
+        <div class="vitem"><div class="a">组件拖入</div><div class="b">组件库拖进画布即出页面区块，无需写代码</div></div>
+        <div class="vitem"><div class="a">模板绑定站点</div><div class="b">站点一键套用模板，换模板不丢内容</div></div>
+        <div class="vitem"><div class="a">发布出静态页</div><div class="b">搭建完成直接进「静态化发布」生成页面</div></div>
+      </div>
+    </div>
+
+    <!-- ========= 静态化发布 ========= -->
+    <div class="page" id="pg-pub">
+      <div class="pagetitle">
+        <h1>静态化发布<span>生成纯静态页 · Nginx 直出 · 抗并发</span></h1>
+        <div class="pagebtns">
+          <button class="btn gho" onclick="toast('演示：定时任务每日 02:00 自动全量静态化')">⏰ 定时任务</button>
+          <button class="btn pri" onclick="publishAll()">🚀 全站发布</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="chead"><div class="t">发布任务 <span style="font-size:10.5px;color:#9db0cc;font-weight:400">（发布前可预览 · 需审核通过 · 发布后可回滚）</span></div><span class="more" id="pubSummary">3 个站点待发布</span></div>
+        <div id="pubList">
+          <div class="pubrow"><div class="pi" style="background:#eaf1ff">🏠</div><div><div class="pt1">官网主站 <span class="stt rev" style="margin-left:6px">有更新</span> <span class="stt" style="background:#fff5e0;color:#b0721a;margin-left:4px" id="aprTag1">待审核</span></div><div class="pt2">6 篇稿件变更 · 上次发布 12:40 · <a href="javascript:void(0)" onclick="pubVersionList(1)" style="color:#1a5bd7">历史版本 3</a></div></div><div class="spacer"></div><div class="prog" id="pg1"><i style="width:0%"></i></div><button class="pghostbtn" onclick="pubPreview(1)">👁 预览</button><button class="pghostbtn" onclick="pubApprove(1,this)">✓ 审核</button><button class="ppubtn" id="pubBtn1" onclick="publishOne(1,this)">发布</button><button class="pghostbtn rollback" id="rbBtn1" style="display:none" onclick="pubRollback(1,this)">⏱ 回滚</button></div>
+          <div class="pubrow"><div class="pi" style="background:#e9f9f0">🎓</div><div><div class="pt1">招生专题网 <span class="stt rev" style="margin-left:6px">有更新</span> <span class="stt" style="background:#e6f7ee;color:var(--ok);margin-left:4px" id="aprTag2">已审核</span></div><div class="pt2">3 篇稿件变更 · 上次发布 昨天 · <a href="javascript:void(0)" onclick="pubVersionList(2)" style="color:#1a5bd7">历史版本 2</a></div></div><div class="spacer"></div><div class="prog" id="pg2"><i style="width:0%"></i></div><button class="pghostbtn" onclick="pubPreview(2)">👁 预览</button><button class="pghostbtn" onclick="pubApprove(2,this)">✓ 审核</button><button class="ppubtn" id="pubBtn2" onclick="publishOne(2,this)">发布</button><button class="pghostbtn rollback" id="rbBtn2" style="display:none" onclick="pubRollback(2,this)">⏱ 回滚</button></div>
+          <div class="pubrow"><div class="pi" style="background:#fff5e0">💼</div><div><div class="pt1">继续教育学院 <span class="stt drf" style="margin-left:6px">无变更</span></div><div class="pt2">内容无变化 · 可跳过</div></div><div class="spacer"></div><div class="prog" id="pg3"><i style="width:0%"></i></div><button class="pghostbtn" onclick="pubPreview(3)">👁 预览</button><button class="ppubtn" style="background:#eef2f8;color:#6b7f9e" onclick="toast('该站点无内容变更，已跳过')">发布</button></div>
+          <div class="pubrow" id="pubPendingRow" style="display:none;border-left:3px solid #f5b308"></div>
+          <div class="pubrow" id="pubNewSiteRow" style="display:none;border-left:3px solid #2b6cf0"></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="chead"><div class="t">发布控制台</div><span class="more">实时输出 · 可追溯</span></div>
+        <div class="console" id="pubConsole"><div><span class="t">[等待]</span>点击「发布」开始静态化…</div></div>
+      </div>
+      <div class="valuebar">
+        <div class="vt">为什么静态化</div>
+        <div class="vitem"><div class="a">抗高并发</div><div class="b">招生季瞬时流量不宕机，纯 HTML 由 Nginx 直出</div></div>
+        <div class="vitem"><div class="a">更安全</div><div class="b">前台无动态脚本暴露，杜绝注入类攻击面</div></div>
+        <div class="vitem"><div class="a">秒级回滚</div><div class="b">保留历史版本快照，发布异常一键回退</div></div>
+      </div>
+    </div>
+
+    <!-- ========= 双风格对比 ========= -->
+    <div class="page" id="pg-vs">
+      <div class="vshead"><div class="vt">两套设计风格 · 对比选型</div><div class="vd">同一内容 · 两种气质 · 点击卡片可在预览中体验</div></div>
+      <div class="vslider-wrap">
+        <img class="vsimg" src="官网设计_素材图/shot_风格一_科技蓝_web.jpg" alt="风格一">
+        <div class="vslider-clip" id="vsClip"><img class="vsimg" src="官网设计_素材图/shot_风格二_学术绿_web.jpg" alt="风格二"></div>
+        <div class="vslider-handle" id="vsHandle"><span>◀ ▶</span></div>
+        <div class="vtag" style="left:16px">🔵 风格一 · 现代科技蓝</div>
+        <div class="vtag" style="right:16px;background:linear-gradient(90deg,#123f2e,#2f9a63)">🟢 风格二 · 学术雅致绿</div>
+      </div>
+      <div class="vshint">🖐 拖动中间滑杆 · 左右滑动对比两版官网真实效果</div>
+      <div class="vsgrid">
+        <div class="vscol b" onclick="openPreview(articles[0].id);pvTheme('b')">
+          <span class="pick">点此体验 →</span>
+          <div class="vh">风格一 · 现代科技蓝</div>
+          <div class="vbody">
+            <div class="vmini"><div class="mt">东方要闻 · 大图 Banner</div></div>
+            <div class="vline hl"></div><div class="vline"></div><div class="vline" style="width:80%"></div>
+            <div class="vfoot"><i></i><i></i><i></i></div>
+          </div>
+        </div>
+        <div class="vscol g" onclick="openPreview(articles[0].id);pvTheme('g')">
+          <span class="pick">点此体验 →</span>
+          <div class="vh">风格二 · 学术雅致绿</div>
+          <div class="vbody">
+            <div class="vmini"><div class="mt">留白雅致 · 五栏目版面</div></div>
+            <div class="vline hl"></div><div class="vline"></div><div class="vline" style="width:80%"></div>
+            <div class="vfoot"><i></i><i></i><i></i></div>
+          </div>
+        </div>
+      </div>
+      <div class="vsbar">
+        <div class="vsitem"><div class="a">🔵 科技蓝 · 适用场景</div><div class="b">对外形象展示、重大活动专题；视觉冲击强，数据感、科技感突出</div></div>
+        <div class="vsitem"><div class="a">🟢 学术绿 · 适用场景</div><div class="b">日常信息门户、学术型院校气质；阅读舒适、版面安静克制</div></div>
+        <div class="vsitem"><div class="a">⚙️ 共同基座</div><div class="b">同一后台、同一内容库；两套模板即插即换，选定后可继续深度定制</div></div>
+      </div>
+    </div>
+
+    <!-- ========= 单页滚动式官网（第三风格 · 建设同学首版demo，本地化离线可开） ========= -->
+    <div class="page" id="pg-live">
+      <div class="vshead"><div class="vt">风格三 · 单页滚动式官网（建设首版）<span style="font-size:12px;font-weight:500;color:#7d90ab;margin-left:10px">iframe 实时加载 · 可滚动可点击 · 断网可用</span></div><div class="vd">下方就是真实的网页——与前面后台演示同一套内容体系：轮播图、要闻、数据带都由刚才的发布流程驱动</div></div>
+      <div id="liveNewSiteCard" style="display:none;margin:0 22px 10px"></div>
+      <div class="card" style="margin:0 22px 10px">
+        <div class="chead"><div class="t">已上线站点（<span id="liveCnt">0</span>）</div><span class="more">静态化发布完成即出现在此 · 点击访问前台</span></div>
+        <div id="liveGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px"></div>
+      </div>
+      <div style="margin:10px 22px 0;border:1px solid #d8e2f0;border-radius:10px;overflow:hidden;background:#fff;box-shadow:0 2px 12px rgba(20,40,80,.08)">
+        <div style="background:#eef3fa;border-bottom:1px solid #d8e2f0;padding:7px 12px;font-size:12px;color:#5a6b85;display:flex;align-items:center;gap:8px">
+          <span style="display:inline-flex;gap:5px"><i style="width:10px;height:10px;border-radius:50%;background:#f66;display:inline-block"></i><i style="width:10px;height:10px;border-radius:50%;background:#fc3;display:inline-block"></i><i style="width:10px;height:10px;border-radius:50%;background:#5c5;display:inline-block"></i></span>
+          <span style="background:#fff;border:1px solid #dfe6ef;border-radius:5px;padding:2px 12px;font-size:11.5px;color:#8a99b3">www.sdfeuorc.edu.cn —— 调研表拟用域名</span>
+          <a href="官网demo_单页滚动式/index.html" target="_blank" style="margin-left:auto;font-size:12px;color:#2b6cf0;text-decoration:none;font-weight:600">↗ 新窗口全屏打开</a>
+        </div>
+        <iframe src="官网demo_单页滚动式/index.html" style="width:100%;height:640px;border:0;display:block;background:#fff" title="东方学院官网单页滚动式demo"></iframe>
+      </div>
+    </div>
+
+    <!-- ========= 敏感词库 ========= -->
+    <div class="page" id="pg-sens">
+      <div class="pagetitle"><h1>敏感词库<span>命中即拦截 · 全站实时生效</span></h1>
+        <div class="pagebtns"><span class="senscnt" style="align-self:center">共 <b id="sensTotal">4</b> 个词条</span></div></div>
+      <div class="card">
+        <div class="chead"><div class="t">词条管理</div><span class="more">新增后即刻参与全站稿件检测</span></div>
+        <div class="sensadd">
+          <input id="sensInput" placeholder="输入新敏感词，回车或点击添加" onkeydown="if(event.key==='Enter')addSensWord()">
+          <button class="btn pri" style="height:34px" onclick="addSensWord()">＋ 添加</button>
+        </div>
+        <div id="sensList">
+          <div class="sensword"><span>代办</span><a onclick="removeSensWord(this,'代办')">移除</a></div>
+          <div class="sensword"><span>代考</span><a onclick="removeSensWord(this,'代考')">移除</a></div>
+          <div class="sensword"><span>内部渠道</span><a onclick="removeSensWord(this,'内部渠道')">移除</a></div>
+          <div class="sensword"><span>加急办理</span><a onclick="removeSensWord(this,'加急办理')">移除</a></div>
+        </div>
+      </div>
+      <div class="valuebar">
+        <div class="vt">检测链路</div>
+        <div class="vitem"><div class="a">编辑实时检</div><div class="b">编辑器内边打边检，命中即标红提示</div></div>
+        <div class="vitem"><div class="a">提交强拦截</div><div class="b">含敏感词的稿件无法提交进入审核流</div></div>
+        <div class="vitem"><div class="a">存量回扫</div><div class="b">新增词条立即回扫已发布稿件，命中即摘除转复审</div></div>
+        <div class="vitem"><div class="a">日志可追溯</div><div class="b">词库变更与拦截记录全程留痕</div></div>
+      </div>
+    </div>
+
+    <!-- ========= 回收站 ========= -->
+    <div class="page" id="pg-trash">
+      <div class="pagetitle"><h1>回收站<span>删除稿件暂存 30 天 · 可一键恢复</span></h1></div>
+      <div class="card">
+        <div class="chead"><div class="t">联动关系 <span style="font-size:10.5px;color:#9db0cc;font-weight:400">（删除/恢复与哪些模块联动）</span></div><span class="more">双向可追溯 · 全程写日志</span></div>
+        <div style="padding:14px 18px;display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px;font-size:11.5px;color:#44597c;line-height:1.8">
+          <div class="pvSec" style="margin:0"><b>📥 谁会进回收站</b><div class="d">「稿件管理」单篇删除（行内"删除"）+ 批量删除（勾选后"🗑 批量删除"），二次确认后移入；仅删<b>稿件</b>，站点/模板/用户删除不在演示范围</div></div>
+          <div class="pvSec" style="margin:0;border-left-color:#f5b308"><b>↩ 恢复时联动</b><div class="d">恢复 → 稿件回到「稿件管理」列表并<b>重置为草稿</b> → 需重新走审核流才能再发布；站点稿件数不回补（草稿不上前台）</div></div>
+          <div class="pvSec" style="margin:0;border-left-color:#c0392b"><b>⛔ 已发布稿件删除联动</b><div class="d">删除"已发布"稿件 → 前台页面区块与静态页<b>同步摘除</b>（站点稿件数 -1）；30 天内可恢复至草稿箱，重新审核发布后回到前台</div></div>
+          <div class="pvSec" style="margin:0;border-left-color:#2f9a63"><b>📋 留痕与计数</b><div class="d">删除/恢复全程写「操作日志」→ 侧栏角标与工作台「回收站」KPI 实时同步 → 30 天到期自动清除（清除前二次确认）</div></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="chead"><div class="t">已删除稿件（<span id="trashN">0</span>）</div><span class="more">到期自动清除 · 清除前二次确认</span></div>
+        <table>
+          <thead><tr><th>标题</th><th style="width:100px">原状态</th><th style="width:120px">删除时间</th><th style="width:110px">操作</th></tr></thead>
+          <tbody id="trashBody"></tbody>
+        </table>
+      </div>
+      <div class="valuebar">
+        <div class="vt">安全网设计</div>
+        <div class="vitem"><div class="a">二次确认</div><div class="b">删除前强制弹窗确认，防止误操作</div></div>
+        <div class="vitem"><div class="a">30天可回滚</div><div class="b">误删稿件随时恢复，内容不丢失</div></div>
+        <div class="vitem"><div class="a">全程留痕</div><div class="b">删除与恢复均写入操作日志</div></div>
+      </div>
+    </div>
+
+    <!-- ========= 占位页 ========= -->
+    <div class="page" id="pg-na">
+      <div class="pagetitle"><h1>模块建设中</h1></div>
+      <div class="card" style="padding:60px;text-align:center;color:#8ba0bd;font-size:14px">
+        该模块在正式版中提供：站点管理 / 模板组件 / 静态化发布 / 角色配置 / 敏感词库维护<br><br>
+        <button class="btn pri" onclick="goto('list')">← 返回稿件管理</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- 弹窗 -->
+<div class="mask" id="mask">
+  <div class="modal">
+    <div class="mh"><div class="wi" id="mIcon">!</div><div class="mt" id="mTitle">操作确认</div></div>
+    <div class="mb" id="mBody"></div>
+    <div class="mf"><button class="mbtn cancel" onclick="closeModal()">取消</button><button class="mbtn ok" id="mOk" onclick="confirmAction()">确认执行</button></div>
+  </div>
+</div>
+<!-- 前台预览弹层 -->
+<div id="pvMask" onclick="if(event.target===this)closePreview()">
+  <div id="pvBox">
+    <div class="pvBar">
+      <span class="pt">🔍 前台页面预览</span><span class="taglive">响应式 · 静态页效果</span>
+      <div class="pvSw">
+        <b data-t="b" class="on" onclick="pvTheme('b')"><i></i>风格一 · 科技蓝</b>
+        <b data-t="g" onclick="pvTheme('g')"><i></i>风格二 · 学术绿</b>
+      </div>
+      <button class="pvClose" onclick="closePreview()">✕</button>
+    </div>
+    <div class="pvBody">
+      <h1 id="pvTitle">关于开展2026-2027学年第一学期期中教学检查的通知</h1>
+      <div class="meta">供稿部门：<b id="pvWho">教务处</b>　|　发布日期：<b id="pvDate">2026-10-18</b>　|　来源：官网主站 · 通知公告栏目</div>
+      <div id="pvContent"><p>各教学单位：为全面掌握本学期教学运行情况，保障教学质量稳步提升，经研究决定开展本学期期中教学检查工作。现将有关事项通知如下。</p>
+      <p>一、检查范围：本学期开设的全部本科课程，含理论课、实验课与实践环节，重点检查课堂教学秩序、教学进度执行及作业批改情况。</p>
+      <div class="pvimg real" style="background-image:url('官网设计_素材图/20260904084739_22_88_w1600.jpg')"></div>
+      <div class="cap">▲ 图 1　校园实景 · 校园全景（素材包实拍）</div>
+      <p>二、检查方式：采取单位自查与学校抽查相结合的方式，各单位须于第10周前完成自查并提交自查报告。学校将组织督导组随机听课，检查结果纳入年度教学考核。</p></div>
+    </div>
+    <div class="pvBody pvgal" style="padding-top:0">
+      <div class="gt">🎬 宣传视频 · 前台播放效果</div>
+      <div class="gsub">画布「视频专区」绑定宣传片后，前台即此大播放器 · 点击播放/暂停</div>
+      <div class="pvVideo" id="pvVideo" style="background-image:url('官网设计_素材图/20260904084822_30_88_w1600.jpg')" onclick="playPvVideo(this)">
+        <span class="vpTitle">校宣传片《东方之约》 · 01:28</span>
+        <button class="bigBtn">▶</button>
+        <div class="vpCtl"><div class="vpTrack"><div class="vpFill"></div></div><span class="vpTime">00:00 / 01:28</span></div>
+      </div>
+      <div class="gt" style="margin-top:18px">📷 校园实景图集 · 素材包全 11 张</div>
+      <div class="gsub">来自校方提供素材包 · 点击任意图片放大查看 · 已用于两版官网设计与稿件配图</div>
+      <div class="gwrap" id="pvGal"></div>
+    </div>
+    <div class="pvFoot">该预览即稿件审核通过后静态化发布的最终效果 · 左上角可切换两种设计风格</div>
+  </div>
+</div>
+<div id="lbMask" onclick="this.classList.remove('on')"><img id="lbImg" src=""><div class="lbcap" id="lbCap"></div></div>
+<div id="pubPvMask" onclick="if(event.target===this)closeMask('pubPvMask')"></div>
+<div id="pubVerMask" onclick="if(event.target===this)closeMask('pubVerMask')"></div>
+<div id="dragGhost"><span class="gd">拖拽中</span><span id="dragGhostTx"></span></div>
+<!-- 内容选择弹层（搭建时"怎么选"的可视化） -->
+<div id="cvPickMask">
+  <div id="cvPickBox">
+    <div class="cpHead"><span id="cpIc">🧩</span><b id="cpTitle">配置组件</b><span class="cpClose" onclick="closeCvPick()">✕</span></div>
+    <div class="cpSec" id="cpLayoutSec"><div class="cpLb">① 选布局</div><div class="cpOpts" id="cpLayouts"></div></div>
+    <div class="cpSec" id="cpContentSec"><div class="cpLb">② 选内容来源</div><div class="cpSrcTag" id="cpSrcTag"></div><div class="cpOpts" id="cpContents"></div></div>
+    <div class="cpFoot"><button class="mbtn ok" id="cpOk">确认添加到画布</button></div>
+  </div>
+</div>
+<!-- 组件组合预览弹层：画布搭完 → 一键看整页前台效果 -->
+<div id="cbPvMask" onclick="if(event.target===this)closeCvPv()">
+  <div id="cbPvBox">
+    <div class="cpHead"><span>🖥</span><b>组件组合 · 前台整页预览</b><span class="cpClose" onclick="closeCvPv()">✕</span></div>
+    <div class="cbPvMeta" id="cbPvMeta"></div>
+    <div class="cbPvPage" id="cbPvPage"></div>
+    <div class="cbPvFoot">↑ 画布里每个区块按摆放顺序拼成完整首页 —— 这就是「组件组合」的最终前台效果，静态化发布后访客看到的就是它
+      <div style="text-align:center;margin-top:10px"><button class="btn pri" onclick="closeCvPv();publishBuiltPage()">🚀 满意了 · 去发布</button></div></div>
+  </div>
+</div>
+<div class="toast" id="toastEl"></div>
+
+<script>
+/* ============ 数据 ============ */
+const PHOTOS=['20260904084739_22_88_w1600.jpg','20260904084740_23_88_w1600.jpg','20260904084741_24_88_w1600.jpg','20260904084742_25_88_w1600.jpg','20260904084812_26_88_w1600.jpg','20260904084818_27_88_w1600.jpg','20260904084819_28_88_w1600.jpg','20260904084821_29_88_w1600.jpg','20260904084822_30_88_w1600.jpg','20260904084823_31_88_w1600.jpg','20260904084825_32_88_w1600.jpg'];
+const PDIR='官网设计_素材图/';
+let articles = [
+  {id:1, title:'关于开展2026-2027学年第一学期期中教学检查的通知', pin:'置顶', cat:'通知公告', stt:'rev', sttName:'待审核', who:'教务处', date:'2026-10-18', img:'20260904084739_22_88_w1600.jpg'},
+  {id:2, title:'视频 | 走进东方学院实验实训中心', pin:'头条', cat:'东方视点', stt:'pub', sttName:'已发布', who:'融媒体中心', date:'2026-10-17', img:'20260904084818_27_88_w1600.jpg'},
+  {id:3, title:'我校在山东省"互联网+"大学生创新创业大赛中获金奖3项', pin:'', cat:'东方要闻', stt:'pub', sttName:'已发布', who:'党委宣传部', date:'2026-10-16', img:'20260904084822_30_88_w1600.jpg'},
+  {id:4, title:'关于评选2026年度优秀学生奖学金的通知', pin:'', cat:'通知公告', stt:'drf', sttName:'草稿', who:'学生工作处', date:'—', img:'20260904084825_32_88_w1600.jpg'},
+  {id:5, title:'校园网络系统升级维护停机公告', pin:'', cat:'通知公告', stt:'off', sttName:'已禁用', who:'信息化办公室', date:'2026-10-12', img:'20260904084812_26_88_w1600.jpg'},
+  {id:6, title:'会计学院与鲁商集团举行产学研合作签约仪式', pin:'', cat:'东方要闻', stt:'pub', sttName:'已发布', who:'党委宣传部', date:'2026-10-14', img:'20260904084741_24_88_w1600.jpg'}
+];
+let auditQueue = [
+  {id:1, title:'关于开展2026-2027学年第一学期期中教学检查的通知', cat:'通知公告', node:'宣传部终审', who:'教务处 · 王老师', wait:'6 小时', urg:true},
+  {id:7, title:'2026年秋季校园招聘会参会企业名单公示', cat:'通知公告', node:'宣传部终审', who:'招生就业处', wait:'3 小时', urg:false},
+  {id:8, title:'金融学院举办数字金融高质量发展学术研讨会', cat:'东方要闻', node:'部门初审', who:'金融学院', wait:'1 小时', urg:false}
+];
+let selected = new Set();
+let pendingAction = null;
+let flowStep = 3; // 审核流当前环节
+
+/* ============ 日志 ============ */
+const SENS_WORDS = ['代办','代考','内部渠道','加急办理'];
+function now(){ const d=new Date(); const p=n=>String(n).padStart(2,'0'); return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`; }
+function addLog(who, role, act, lvl){ const el=document.getElementById('logList'); const r=document.createElement('div'); r.className='logrow';
+  r.innerHTML=`<span class="tm">${now()}</span><span class="who">${who}<i>${role}</i></span><span class="act">${act}</span><span class="lvl ${lvl}">${lvl==='d'?'高危':lvl==='w'?'提示':'信息'}</span>`;
+  el.prepend(r); }
+addLog('李处长','部门审核','<b>通过</b>《期中教学检查通知》初审并流转至终审','i');
+addLog('王老师','教务处','<b>提交</b>新稿件进入审核流（附敏感词检测报告）','i');
+
+/* ============ 页面切换 ============ */
+const crumbs = {list:'内容中心 / <b>稿件管理</b>', edit:'稿件管理 / <b>新建稿件</b>', audit:'内容中心 / <b>审核中心</b>', na:'<b>模块建设中</b>', dash:'<b>工作台</b>', site:'站点建设 / <b>站点管理</b>', tpl:'站点建设 / <b>模板与组件</b>', pub:'站点建设 / <b>静态化发布</b>', vs:'设计选型 / <b>双风格对比</b>', live:'设计选型 / <b>官网成品预览（风格三）</b>', sens:'系统管理 / <b>敏感词库</b>', trash:'系统管理 / <b>回收站</b>'};
+function goto(p){
+  document.querySelectorAll('.page').forEach(e=>e.classList.remove('on'));
+  document.getElementById('pg-'+p).classList.add('on');
+  document.querySelectorAll('.sitem').forEach(e=>e.classList.toggle('on', e.dataset.pg===p));
+  document.getElementById('crumb').innerHTML = crumbs[p]||crumbs.na;
+  document.querySelector('.pages').scrollTop=0;
+  // 从「角色权限/操作日志」单卡视图切回时，恢复审核中心完整页面（标题/流程卡/待审稿件/双卡）
+  if(p==='audit'){ const at=document.getElementById('auditTitle'), fc=document.getElementById('flowCard'), pc=document.getElementById('pendingCard');
+    if(at)at.style.display=''; if(fc)fc.style.display=''; if(pc)pc.style.display='';
+    const rc=document.getElementById('rolesCard'), lc=document.getElementById('logCard');
+    if(rc&&lc){ rc.parentNode.style.display=''; lc.parentNode.style.display='';
+      rc.parentNode.parentNode.style.gridTemplateColumns='1fr 1fr'; }
+    document.querySelectorAll('.sitem[data-pg="audit"]').forEach(x=>x.classList.toggle('on', !x.dataset.anchor)); }
+  if(window.renderFlowBanners)renderFlowBanners(); // 每次切页刷新全链路联动状态
+  if(p==='trash'&&window.renderTrash)renderTrash(); // 切到回收站时刷新列表与计数
+}
+document.querySelectorAll('.sitem').forEach(e=>e.addEventListener('click',()=>{
+  if(e.dataset.pg==='na'){toast('演示版：该模块在正式版中提供');return}
+  if(e.dataset.pg==='dash'){toast('演示版：工作台与稿件管理功能一致');goto('list');return}
+  goto(e.dataset.pg);
+  if(e.dataset.anchor){
+    const el=document.getElementById(e.dataset.anchor);
+    if(el){
+      // 独立模块（角色权限/操作日志）：只显示对应卡片（另一张隐藏），面包屑+高亮+提示
+      const isRoles=e.dataset.anchor==='rolesCard', isLog=e.dataset.anchor==='logCard';
+      if(isRoles||isLog){
+        document.getElementById('crumb').innerHTML = isRoles?'系统管理 / <b>角色权限</b>':'系统管理 / <b>操作日志</b>';
+        document.querySelectorAll('.sitem').forEach(x=>x.classList.toggle('on', x===e));
+        // 隐藏审核中心专属区块（标题/流程卡/待审稿件表），只留目标卡，页面看起来就是独立模块
+        const at=document.getElementById('auditTitle'), fc=document.getElementById('flowCard'), pc=document.getElementById('pendingCard');
+        if(at)at.style.display='none'; if(fc)fc.style.display='none'; if(pc)pc.style.display='none';
+        const rolesCard=document.getElementById('rolesCard').parentNode;
+        const logCard=document.getElementById('logCard').parentNode;
+        const duo=rolesCard.parentNode;
+        if(isRoles){ rolesCard.style.display=''; logCard.style.display='none'; duo.style.gridTemplateColumns='1fr'; }
+        else { rolesCard.style.display='none'; logCard.style.display=''; duo.style.gridTemplateColumns='1fr'; }
+        setTimeout(()=>{ el.scrollIntoView({block:'center'});
+          el.classList.add('demo-hl'); setTimeout(()=>el.classList.remove('demo-hl'),2200);
+          toast(isRoles?'已打开「角色权限」· 独立模块视图（点侧栏「审核中心」返回完整页）':'已打开「操作日志」· 独立模块视图（点侧栏「审核中心」返回完整页）');
+        },80);
+      } else { setTimeout(()=>el.scrollIntoView({block:'center'}),80); }
+    }
+  }
+}));
+
+/* ============ toast / modal ============ */
+let toastTimer;
+function toast(msg){ const t=document.getElementById('toastEl'); t.textContent=msg; t.classList.add('on'); clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.classList.remove('on'),2400); }
+function openModal(icon,title,body,okText,okCls,action){ document.getElementById('mIcon').textContent=icon; document.getElementById('mTitle').textContent=title;
+  document.getElementById('mBody').innerHTML=body; const ok=document.getElementById('mOk'); ok.textContent=okText; ok.className='mbtn '+(okCls||'ok');
+  pendingAction=action; document.getElementById('mask').classList.add('on'); }
+function closeModal(){ document.getElementById('mask').classList.remove('on'); pendingAction=null; }
+function confirmAction(){ if(pendingAction){pendingAction();} closeModal(); }
+document.getElementById('mask').addEventListener('click',e=>{if(e.target.id==='mask')closeModal()});
+
+/* ============ 稿件表格 ============ */
+/* 稿件 → 使用站点：根据各站点画布区块绑定的栏目数据源反查（演示环境按栏目映射规则推导） */
+const SITE_CAT_USES=[ // 每个站点画布绑定的内容栏目（与建站向导/区块内容源一致）
+  {nm:'官网主站',cats:['东方要闻','通知公告','东方视点'],block:'首页要闻/公告区块'},
+  {nm:'招生专题网',cats:['通知公告'],block:'招生动态区块'},
+  {nm:'继续教育学院',cats:['通知公告'],block:'学院公告区块'},
+  {nm:'会计学院',cats:['东方要闻'],block:'学院要闻区块'},
+  {nm:'金融学院',cats:['东方要闻'],block:'学院要闻区块'},
+  {nm:'图书馆',cats:['通知公告'],block:'服务公告区块'},
+  {nm:'教务处',cats:['通知公告'],block:'教务通知区块'},
+  {nm:'融媒体中心',cats:['东方视点','东方要闻'],block:'视频专区/要闻区块'}
+];
+function artUses(a){
+  if(a.stt!=='pub')return []; // 未发布的稿只进队列不上前台
+  return SITE_CAT_USES.filter(u=>u.cats.includes(a.cat)).map(u=>({nm:u.nm,block:u.block}));
+}
+function useBadges(a){
+  const uses=artUses(a); if(!uses.length)return '<span style="color:#9db0cc;font-size:10.5px">—</span>';
+  return uses.slice(0,2).map(u=>`<span class="usesite" title="${u.block}">${u.nm}</span>`)+ (uses.length>2?`<span class="usesite more2">+${uses.length-2}</span>`:'');
+}
+function openArtUses(id){
+  const a=articles.find(x=>x.id===id); if(!a)return;
+  const uses=artUses(a);
+  const rows=uses.map(u=>`<div class="pubVerRow"><span style="font-size:16px">${(sites.find(s=>s.nm===u.nm)||{}).ic||'🌐'}</span><span style="font-weight:700;color:#12335f;flex:1">${u.nm}</span><span style="color:#9db0cc;font-size:11px">${(sites.find(s=>s.nm===u.nm)||{}).url||''}</span><span style="font-size:10.5px;color:#1a5bd7;background:#eef4ff;border-radius:6px;padding:2px 8px">${u.block}</span></div>`).join('')
+    ||`<div style="padding:22px;text-align:center;color:#9db0cc;font-size:12px">该稿件当前状态「${a.sttName}」尚未在前台展示 —— 发布后按栏目自动进入各站点区块</div>`;
+  openMask('pubVerMask',`<div class="pubVerBox">
+    <div class="pubPvHead">🌐 稿件使用站点 · 《${a.title.slice(0,20)}${a.title.length>20?'…':''}》<span class="x" onclick="closeMask('pubVerMask')">✕</span></div>
+    <div style="max-height:56vh;overflow:auto">${rows}</div>
+    <div class="pubPvFoot"><span style="font-size:11px;color:#9db0cc;margin-right:auto">一库共享：稿件按栏目数据源分发到各站点区块 · 下线/驳回自动同步摘除</span><button class="pghostbtn" onclick="closeMask('pubVerMask')">关 闭</button></div>
+  </div>`);
+  addLog('管理员','主站管理员',`<b>查看</b>稿件《${a.title.slice(0,14)}…》的使用站点（${uses.length} 个）`,'i');
+}
+function renderTable(){
+  const kw=document.getElementById('kw').value.trim(), fc=document.getElementById('fCat').value, fs=document.getElementById('fStt').value, fw=document.getElementById('fWho').value;
+  const list=articles.filter(a=>(!kw||a.title.includes(kw))&&(!fc||a.cat===fc)&&(!fs||a.stt===fs)&&(!fw||a.who===fw));
+  const tb=document.getElementById('tbody');
+  tb.innerHTML=list.map(a=>`<tr>
+    <td><span class="ck ${selected.has(a.id)?'on':''}" onclick="toggleSel(${a.id})"></span></td>
+    <td><div class="rthumb" style="background-image:url('${PDIR}${a.img}')" onclick="openLB('${a.img}','${a.title.slice(0,16)}…')"></div></td>
+    <td><div class="ttc"><div class="a">${a.title}${a.pin?`<span class="pin">${a.pin}</span>`:''}</div></div></td>
+    <td>${a.cat}</td><td><span class="stt ${a.stt}">${a.sttName}</span></td><td>${a.who}</td><td>${a.date}</td>
+    <td><div class="usecell">${useBadges(a)}</div></td>
+    <td><div class="sortbtn"><span onclick="moveRow(${a.id},-1)">▲</span><span onclick="moveRow(${a.id},1)">▼</span></div></td>
+    <td class="op"><a onclick="editArticle(${a.id})">编辑</a><a onclick="openPreview(${a.id})">预览</a><a onclick="openArtUses(${a.id})">站点</a><a class="d" onclick="askDeleteOne(${a.id})">删除</a></td></tr>`).join('')
+    || '<tr><td colspan="10" style="text-align:center;color:#9db0cc;padding:26px">无匹配稿件 · 可调整筛选条件</td></tr>';
+  document.getElementById('totalCnt').textContent=articles.length;
+  const np=document.getElementById('navPending'); if(np)np.textContent=articles.length;
+  updateBatchBtns(); enableRowDrag();
+}
+/* 前台预览 + 双风格切换 */
+let pvFromEditor=false;
+function openPreview(id){ pvFromEditor=false; const c=document.getElementById('pvContent');
+  if(c&&!c.dataset.base)c.dataset.base=c.innerHTML;
+  const a=articles.find(x=>x.id===id); if(a){
+    document.getElementById('pvTitle').textContent=a.title;
+    document.getElementById('pvWho').textContent=a.who;
+    document.getElementById('pvDate').textContent=a.date==='—'?'草稿未定':a.date;
+    const uses=artUses(a); const mEl=document.querySelector('#pvBox .meta');
+    if(mEl)mEl.innerHTML=`供稿部门：<b>${a.who}</b>　|　发布日期：<b>${a.date==='—'?'草稿未定':a.date}</b>　|　来源：官网主站 · ${a.cat}栏目${uses.length?`　|　<span style="color:#1a5bd7">已在 ${uses.length} 个站点展示（点稿件行「站点」查看清单）</span>`:''}`; }
+  if(c&&c.dataset.base)c.innerHTML=c.dataset.base; // 列表模式还原示例内容
+  document.getElementById('pvMask').classList.add('on');
+  addLog('管理员','主站管理员',`<b>预览</b>稿件《${(a?a.title:'当前稿件').slice(0,16)}…》前台效果`,'i'); }
+function previewFromEditor(){ pvFromEditor=true; const c=document.getElementById('pvContent');
+  if(c&&!c.dataset.base)c.dataset.base=c.innerHTML;
+  // 所见即所得：编辑器正文实时装进预览（渐变占位图替换为真实校园照片）
+  document.getElementById('pvTitle').textContent=document.getElementById('edTitle').textContent;
+  document.getElementById('pvWho').textContent=document.querySelector('#depts .on').textContent;
+  document.getElementById('pvDate').textContent=document.querySelector('#pg-edit input[type=date]').value;
+  c.innerHTML=doc.innerHTML.replace(/<div class="imgbox">[\s\S]*?<\/div>/,'<div class="pvimg real" style="background-image:url(\''+PDIR+'20260904084739_22_88_w1600.jpg\')"></div><div class="cap">▲ 图 1　校园实景（素材包实拍 · 素材库自动匹配）</div>');
+  document.getElementById('pvMask').classList.add('on');
+  addLog('管理员','主站管理员','<b>预览</b>编辑中稿件（所见即所得）前台效果','i'); }
+function closePreview(){ document.getElementById('pvMask').classList.remove('on');
+  const c=document.getElementById('pvContent');
+  if(pvFromEditor&&c&&c.dataset.base){ c.innerHTML=c.dataset.base; pvFromEditor=false; } }
+function pvTheme(t){ document.querySelectorAll('.pvSw b').forEach(e=>e.classList.toggle('on',e.dataset.t===t));
+  document.getElementById('pvBox').classList.toggle('g',t==='g');
+  addLog('管理员','主站管理员',t==='g'?'<b>切换</b>预览风格 → 风格二·学术雅致绿':'<b>切换</b>预览风格 → 风格一·现代科技蓝','i'); }
+/* 行拖拽排序（③ 拖拉调整顺序） */
+let dragEl=null;
+function enableRowDrag(){ document.querySelectorAll('#tbody tr').forEach(tr=>{
+  tr.draggable=true;
+  tr.addEventListener('dragstart',()=>{dragEl=tr;tr.classList.add('dragging')});
+  tr.addEventListener('dragend',()=>{tr.classList.remove('dragging');document.querySelectorAll('#tbody tr').forEach(r=>r.classList.remove('dragover'));syncDragToData()});
+  tr.addEventListener('dragover',e=>{e.preventDefault();if(tr!==dragEl)tr.classList.add('dragover')});
+  tr.addEventListener('dragleave',()=>tr.classList.remove('dragover'));
+  tr.addEventListener('drop',e=>{e.preventDefault();tr.classList.remove('dragover');
+    if(dragEl&&dragEl!==tr){ const ref=dragEl.compareDocumentPosition(tr)&Node.DOCUMENT_POSITION_FOLLOWING?tr.nextSibling:tr; tr.parentNode.insertBefore(dragEl,ref); } });});}
+function syncDragToData(){ const tb=document.getElementById('tbody');
+  // 剥离置顶/头条徽标后再匹配标题，避免带 pin 徽标的稿件匹配失败沉底
+  const order=[...tb.querySelectorAll('tr .ttc .a')].map(e=>e.childNodes[0].textContent.trim());
+  if(!order.length)return;
+  articles.sort((x,y)=>{ const ox=order.indexOf(x.title),oy=order.indexOf(y.title);
+    return (ox===-1?999:ox)-(oy===-1?999:oy); });
+  addLog('管理员','主站管理员','<b>拖拽排序</b>稿件列表顺序已调整','i'); toast('排序已保存 · 已写入操作日志'); }
+
+/* ============ 站点管理 ============ */
+let sites=[
+  {nm:'官网主站',url:'www.dfxy.edu.cn',ic:'🏠',c:'#2b6cf0',stt:'pub',arts:186,tpl:'科技蓝'},
+  {nm:'招生专题网',url:'zs.dfxy.edu.cn',ic:'🎓',c:'#199a5e',stt:'pub',arts:47,tpl:'招生季'},
+  {nm:'继续教育学院',url:'cjy.dfxy.edu.cn',ic:'💼',c:'#c07f00',stt:'pub',arts:35,tpl:'部门版'},
+  {nm:'会计学院',url:'kx.dfxy.edu.cn',ic:'📊',c:'#6a4fe0',stt:'pub',arts:52,tpl:'院系版'},
+  {nm:'金融学院',url:'jr.dfxy.edu.cn',ic:'🏦',c:'#1a5bd7',stt:'rev',arts:44,tpl:'院系版'},
+  {nm:'图书馆',url:'tsg.dfxy.edu.cn',ic:'📚',c:'#c0392b',stt:'pub',arts:28,tpl:'部门版'},
+  {nm:'教务处',url:'jwc.dfxy.edu.cn',ic:'🗂',c:'#2f9a63',stt:'drf',arts:31,tpl:'部门版'},
+  {nm:'融媒体中心',url:'rm.dfxy.edu.cn',ic:'🎬',c:'#8b6bd8',stt:'pub',arts:39,tpl:'科技蓝'}
+];
+function sttBadge(s){ return s==='pub'?'<span class="stt pub">运行中</span>':s==='rev'?'<span class="stt rev">改版中</span>':'<span class="stt drf">筹备中</span>'; }
+/* ===== 全链路联动：新建站点 → 搭建 → 发布 → 成品预览 ===== */
+const FLOW={ newSite:null };  // 记录新建站点全流程状态 {nm,url,tpl,built,blocks,published}
+let pendingPubTitle=null;     // 终审通过、待静态化发布的稿件标题
+let KPI_PUB_MONTH=186;        // 工作台「本月已发布」联动计数
+function flowMarkSite(nm,url,tpl){ FLOW.newSite={nm,url,tpl,built:false,blocks:0,published:false}; renderFlowBanners(); }
+function renderFlowBanners(){
+  // ① 模板与组件页：显示"正在为 XX 搭建"横幅
+  const tb=document.getElementById('tplFlowBanner');
+  if(tb){ const f=FLOW.newSite;
+    tb.style.display=f?'flex':'none';
+    if(f)tb.innerHTML=`🆕 正在为新建站点「<b>${f.nm}</b>」（${f.url} · 模板${f.tpl}）搭建页面 —— 拖组件到下方画布，搭完点「🚀 发布此页面」<span style="margin-left:auto;font-size:10.5px;color:${f.published?'var(--ok)':'#b0721a'};font-weight:700">${f.published?'✓ 已发布上线':'待搭建/发布'}</span>`;
+  }
+  // ② 静态化发布页：终审通过的稿件任务行 + 新站点发布任务行
+  const pr=document.getElementById('pubPendingRow');
+  if(pr){ pr.style.display=pendingPubTitle?'flex':'none';
+    if(pendingPubTitle){ const _pa=articles.find(x=>x.title===pendingPubTitle); const _pcat=_pa?_pa.cat:'通知公告';
+      pr.innerHTML=`<div class="pi" style="background:#fff7e4">✅</div><div><div class="pt1">《${pendingPubTitle.slice(0,22)}${pendingPubTitle.length>22?'…':''}》<span class="stt rev" style="margin-left:6px">终审通过 · 待发布</span></div><div class="pt2">来自「审核中心」终审通过 · 所属：官网主站 / ${_pcat}</div></div><div class="spacer"></div><div class="prog" id="pgP"><i style="width:0%"></i></div><button class="ppubtn" onclick="publishPendingArt(this)">发布</button></div>`; }
+  }
+  const nl=document.getElementById('pubNewSiteRow');
+  if(nl){ const f=FLOW.newSite;
+    nl.style.display=(f&&f.built)?'flex':'none';
+    if(f&&f.built){
+      const apr=f.approved;
+      nl.innerHTML=`<div class="pi" style="background:#eef7ff">🆕</div><div><div class="pt1">${f.nm} <span class="stt" style="background:${f.published?'#e6f7ee;color:var(--ok)':apr?'#fff7e4;color:#b0721a':'#fdeaea;color:#c0392b'};margin-left:6px">${f.published?'已上线':apr?'已审核 · 待发布':'待审核'}</span></div><div class="pt2">由「模板与组件」搭建生成 · ${f.blocks} 个区块 · 模板${f.tpl}</div></div><div class="spacer"></div><div class="prog" id="pgN"><i style="width:${f.published?'100':'0'}%"></i></div><button class="pghostbtn" onclick="pubPreviewNewSite()">👁 预览</button>${f.published?'':'<button class="pghostbtn" onclick="pubApproveNewSite(this)">✓ 审核</button>'}${f.published?'<button class="pghostbtn rollback" onclick="toast(\'已回滚至上一快照（演示）\')">⏱ 回滚</button>':apr?'<button class="ppubtn" onclick="publishNewSite(this)">发布</button>':'<button class="ppubtn" style="background:#eef2f8;color:#6b7f9e" onclick="toast(\'新站点页面尚未审核 —— 先点「✓ 审核」，通过后才能发布\')">发布</button>'}`;
+    }
+  }
+  // ③ 官网成品预览页：已上线站点网格（所有 stt=pub 的站点）+ 新站点上线卡片
+  const lg=document.getElementById('liveGrid');
+  if(lg){ const live=sites.filter(s=>s.stt==='pub');
+    lg.innerHTML=live.map(s=>`<div class="sitecard" style="margin:0" onclick="toast('演示：访问 ${s.url} · 前台与左侧官网同一基座渲染')">
+      <div class="stt">${sttBadge(s.stt)}</div>
+      <div class="sic" style="background:linear-gradient(135deg,${s.c},${s.c}cc)">${s.ic}</div>
+      <div class="snm">${s.nm}</div><div class="surl">${s.url}</div>
+      <div class="smeta"><span>稿件 <b>${s.arts}</b></span><span>模板 ${s.tpl}</span></div></div>`).join('')
+      ||'<div style="color:#9db0cc;font-size:12px;padding:14px;text-align:center">暂无已上线站点 —— 到「静态化发布」完成发布后即可在此访问</div>';
+    const lc2=document.getElementById('liveCnt'); if(lc2)lc2.textContent=live.length; }
+  const lc=document.getElementById('liveNewSiteCard');
+  if(lc){ const f=FLOW.newSite;
+    lc.style.display=(f&&f.published)?'block':'none';
+    if(f&&f.published)lc.innerHTML=`<div style="border:1.5px solid #bfe8cf;background:#f2fcf6;border-radius:10px;padding:12px 16px;display:flex;align-items:center;gap:12px"><span style="font-size:20px">🆕</span><div style="flex:1"><div style="font-size:13px;font-weight:700;color:#1e7a4a">${f.nm} 已发布上线</div><div style="font-size:11px;color:#6b8f7d;margin-top:2px">${f.url} · 模板${f.tpl} · ${f.blocks} 个组件区块 —— 由站点管理新建 → 画布搭建 → 静态化发布全流程生成</div></div><button class="pghostbtn" onclick="toast('演示：访问 ${f.url} · 新站点前台（与左侧官网同一基座渲染）')">↗ 访问新站</button></div>`;
+  }
+}
+/* 新站点：发布前预览（按画布真实区块生成）+ 审核门禁 */
+function pubPreviewNewSite(){
+  const f=FLOW.newSite; if(!f){ toast('暂无新建站点'); return; }
+  const zone=document.getElementById('canvasZone');
+  const blocks=[...zone.querySelectorAll(':scope > .cvBlock')];
+  const names=blocks.map(b=>blockName(b));
+  // 每个区块的真实渲染摘要
+  const secs=names.map(nm=>{
+    let inner='<div class="d">（区块内容 · 与画布一致）</div>';
+    const blk=blocks.find(b=>blockName(b)===nm);
+    if(blk){
+      if(nm==='轮播图'){ const bg=blk.querySelector('.cvBanner'); inner=`<div class="d">Banner 已渲染${bg?'（真实素材图）':''} · 与画布预览一致</div>`; }
+      else if(nm==='要闻列表'||nm==='通知公告'){ const rows=blk.querySelectorAll('.cvNews').length; inner=`<div class="d">${rows} 条真实稿件标题 · 与画布预览一致</div>`; }
+      else if(nm==='数字展示'){ inner='<div class="d">4 项办学指标 · 与画布预览一致</div>'; }
+      else if(nm==='友情链接'){ inner='<div class="d">5 条常用链接 · 与画布预览一致</div>'; }
+      else if(nm==='二维码'){ inner='<div class="d">官方微信/抖音/微博 三码 · 与画布预览一致</div>'; }
+      else if(nm==='视频专区'){ inner='<div class="d">校宣传视频卡片 · 与画布预览一致</div>'; }
+    }
+    return `<div class="pvSec"><b>${nm}</b>${inner}</div>`;
+  }).join('')||'<div class="pvSec"><b>（空画布）</b></div>';
+  openMask('pubPvMask',`<div class="pubPvBox">
+    <div class="pubPvHead">👁 发布前预览 · ${f.nm} <span style="font-size:10.5px;color:#9db0cc;font-weight:400">（静态化生成效果 · 非线上）</span><span class="x" onclick="closeMask('pubPvMask')">✕</span></div>
+    <div class="pubPvBody">${secs}<div class="pvSec" style="border-left-color:#2f9a63"><b>📱 移动端适配</b><div class="d">响应式布局 · IPv6 双栈可访问 · 模板${f.tpl}</div></div></div>
+    <div class="pubPvFoot"><span style="font-size:11px;color:#9db0cc;margin-right:auto">${f.approved?'已审核通过 · 可直接发布':'预览无误后请先「✓ 审核」再发布'}</span><button class="pghostbtn" onclick="closeMask('pubPvMask')">关 闭</button><button class="ppubtn" onclick="closeMask('pubPvMask');pubApproveNewSite(null);toast('预览确认完毕 · 已标记审核通过 · 现在可发布')">确认无误 · 审核并发布</button></div>
+  </div>`);
+  addLog('管理员','主站管理员',`<b>预览</b>新站点「${f.nm}」静态化生成效果（${names.length} 区块）`,'i');
+}
+function pubApproveNewSite(btn){
+  const f=FLOW.newSite; if(!f)return;
+  f.approved=true;
+  addLog('管理员','系统管理员',`<b>审核通过</b>新站点「${f.nm}」页面（${f.blocks} 区块 · 发布门禁解除）`,'s');
+  toast(`「${f.nm}」审核通过 · 现在可发布`);
+  renderFlowBanners();
+}
+function publishPendingArt(btn){
+  const t=pendingPubTitle||'稿件'; const site=sites.find(s=>s.nm==='官网主站');
+  btn.disabled=true;btn.textContent='发布中…';
+  pubLog(`开始静态化稿件《${t.slice(0,16)}…》→ 生成 HTML → 推送 Nginx`);
+  const bar=document.getElementById('pgP'); let p=0;
+  const tm=setInterval(()=>{ p+=28; if(p>=100){p=100;clearInterval(tm);
+    pendingPubTitle=null;
+    pubLog(`稿件发布完成 · 官网主站「通知公告」栏目已更新 · 快照已留存`,true);
+    addLog('系统','自动',`<b>静态化</b>《${t.slice(0,14)}…》发布上线（终审通过→发布 闭环）`,'i');
+    // 联动：稿件状态→已发布、本月已发布 KPI +1（重新发布的稿——编辑摘除或敏感词摘除时站点数已减过——不重复+1）
+    const art=articles.find(x=>x.title===t);
+    const wasRePub=auditQueue.find(x=>x.title===t&&(x.reEdit||x.sensRecheck))||art&&art.stt==='rev';
+    if(art){ art.stt='pub'; art.sttName='已发布'; art.date=now().slice(0,10); renderTable(); }
+    if(site&&!wasRePub){ site.arts++; renderSites(); }
+    KPI_PUB_MONTH++; const kp=document.getElementById('kpiPubMonth'); if(kp)kp.innerHTML=KPI_PUB_MONTH+'<i>篇</i>';
+    // 联动：画布上的要闻/公告区块重渲染（发布后区块立即带上新稿）
+    refreshCanvasBlocks();
+    toast('发布成功 · 站点稿件数与工作台 KPI 已同步');
+    renderFlowBanners();
+  } if(bar)bar.style.width=p+'%'; },260);
+}
+/* 发布/删除后重渲染画布上的要闻/通知区块，保证区块内容与稿件库一致 */
+function refreshCanvasBlocks(){
+  const zone=document.getElementById('canvasZone'); if(!zone)return;
+  zone.querySelectorAll(':scope > .cvBlock').forEach(b=>{
+    const nm=blockName(b);
+    if(nm==='要闻列表')b.querySelector('.cvbody').innerHTML=cvBody('要闻列表',0);
+    else if(nm==='通知公告')b.querySelector('.cvbody').innerHTML=cvBody('通知公告',0);
+  });
+}
+function publishNewSite(btn){
+  const f=FLOW.newSite; if(!f)return;
+  // 审核门禁：新站点页面未审核 → 拦截
+  if(!f.approved&&!f.published){ toast('新站点页面尚未审核 —— 先点「✓ 审核」，通过后才能发布'); pubLog(`⛔ 「${f.nm}」发布被拦截：页面未审核`); return; }
+  btn.disabled=true;btn.textContent='发布中…';
+  pubLog(`开始静态化新站点「${f.nm}」· ${f.blocks} 个区块 → 生成 HTML`);
+  const bar=document.getElementById('pgN'); let p=0;
+  const tm=setInterval(()=>{ p+=25; if(p>=100){p=100;clearInterval(tm);
+    f.published=true;
+    // 联动：站点状态改运行中、本月已发布 KPI（新站首次发布算整站上线，稿件数不变）
+    const st=sites.find(s=>s.nm===f.nm); if(st)st.stt='pub';
+    KPI_PUB_MONTH++; const kp=document.getElementById('kpiPubMonth'); if(kp)kp.innerHTML=KPI_PUB_MONTH+'<i>篇</i>';
+    renderSites();
+    pubLog(`「${f.nm}」发布完成 · 快照已留存 · 已同步到「官网成品预览」`,true);
+    addLog('系统','自动',`<b>静态化</b>新站点「${f.nm}」发布上线（${f.blocks} 区块）`,'i');
+    toast(`「${f.nm}」已上线 —— 去左侧「🌐 官网成品预览」查看`);
+    renderFlowBanners();
+  } if(bar)bar.style.width=p+'%'; },260);
+}
+function renderSites(){ const g=document.getElementById('siteGrid');
+  g.innerHTML=sites.map(s=>`<div class="sitecard" onclick="openSiteEdit('${s.nm}')">
+    <div class="stt">${sttBadge(s.stt)}</div>
+    <div class="sic" style="background:linear-gradient(135deg,${s.c},${s.c}cc)">${s.ic}</div>
+    <div class="snm">${s.nm}</div><div class="surl">${s.url}</div>
+    <div class="smeta"><span>稿件 <b>${s.arts}</b></span><span>模板 ${s.tpl}</span></div></div>`).join('')
+    +'<div class="sitecard addnew" onclick="openWiz()"><div style="font-size:24px">＋</div><div style="font-size:12px;margin-top:6px">新建站点</div></div>';
+  document.getElementById('siteCnt').textContent=sites.length;
+  document.getElementById('kpiSite').innerHTML=sites.length+'<i>个</i>';
+  document.getElementById('navSite').textContent=sites.length;
+  renderTplUse(); }
+/* 编辑站点：名称/域名/模板/状态可改，状态与模板联动全链路 */
+function openSiteEdit(nm){
+  const s=sites.find(x=>x.nm===nm); if(!s)return;
+  const tplOpts=['科技蓝','学术绿','招生季','院系版','部门版'].map(t=>`<option ${s.tpl===t?'selected':''}>${t}</option>`).join('');
+  const sttOpts=[['pub','运行中'],['rev','改版中'],['drf','筹备中']].map(([v,l])=>`<option value="${v}" ${s.stt===v?'selected':''}>${l}</option>`).join('');
+  openModal('✏️','编辑站点 · '+s.nm,
+    `<div class="frow"><span class="k">站点名称</span><input class="v" id="seNm" value="${s.nm}"></div>
+     <div class="frow"><span class="k">二级域名</span><input class="v" id="seUrl" value="${s.url}"></div>
+     <div class="frow"><span class="k">绑定模板</span><select class="v" id="seTpl">${tplOpts}</select></div>
+     <div class="frow"><span class="k">运行状态</span><select class="v" id="seStt">${sttOpts}</select></div>
+     <div style="font-size:10.5px;color:#8ba0bd;line-height:1.6">状态改为「筹备中」即前台下线（成品预览同步移除，可随时切回）；本站稿件 <b>${s.arts}</b> 篇保留不受影响。名称/域名/模板修改后需重新静态化发布生效。</div>`,
+    '保 存','blue',()=>{
+      const nmn=document.getElementById('seNm').value.trim()||s.nm;
+      const uru=document.getElementById('seUrl').value.trim()||s.url;
+      const tpl=document.getElementById('seTpl').value, stt=document.getElementById('seStt').value;
+      if(nmn===s.nm&&uru===s.url&&tpl===s.tpl&&stt===s.stt){ toast('未做修改'); return; }
+      const oldNm=s.nm; const changes=[];
+      if(nmn!==s.nm){changes.push('名称→'+nmn); s.nm=nmn; if(FLOW.newSite&&FLOW.newSite.nm===oldNm)FLOW.newSite.nm=nmn;}
+      if(uru!==s.url){changes.push('域名→'+uru); s.url=uru; if(FLOW.newSite&&FLOW.newSite.nm===nmn)FLOW.newSite.url=uru;}
+      if(tpl!==s.tpl){changes.push('模板→'+tpl); s.tpl=tpl; if(FLOW.newSite&&FLOW.newSite.nm===nmn)FLOW.newSite.tpl=tpl;}
+      if(stt!==s.stt){changes.push('状态→'+({pub:'运行中',rev:'改版中',drf:'筹备中'})[stt]); s.stt=stt;}
+      renderSites(); renderFlowBanners();
+      addLog('管理员','主站管理员',`<b>修改站点</b>「${oldNm}」${changes.join(' · ')}（需重新静态化发布生效）`,'w');
+      toast(`站点已更新：${changes.join(' · ')}`);
+    });}
+/* 内置模板 ↔ 站点绑定：计数 + 弹层查看/绑定 */
+function renderTplUse(){
+  ['科技蓝','学术绿','招生季','院系版','部门版'].forEach(tp=>{
+    const el=document.getElementById('tuse'+tp); if(!el)return;
+    const n=sites.filter(s=>s.tpl===tp).length;
+    el.textContent=n?`${n} 个站点绑定 · 点击查看`:'暂无站点绑定 · 点击绑定';
+    el.style.color=n?'#2b6cf0':'#8ba0bd';
+  });
+}
+function openTplBind(tp){
+  const bound=sites.filter(s=>s.tpl===tp), unbound=sites.filter(s=>s.tpl!==tp);
+  const rows=bound.map(s=>`<div class="pubVerRow"><span style="font-size:16px">${s.ic}</span><span style="font-weight:700;color:#12335f;flex:1">${s.nm}</span><span style="color:#9db0cc;font-size:11px">${s.url}</span><span class="cur">已绑定</span></div>`).join('')
+    ||'<div style="padding:18px;text-align:center;color:#9db0cc;font-size:12px">该模板暂无绑定站点</div>';
+  const unrows=unbound.map(s=>`<div class="pubVerRow"><span style="font-size:16px">${s.ic}</span><span style="font-weight:700;color:#12335f;flex:1">${s.nm}<i style="font-style:normal;color:#9db0cc;font-size:10.5px;margin-left:6px">当前模板：${s.tpl}</i></span><button class="pghostbtn" style="height:26px;padding:0 12px;font-size:11px" onclick="bindSiteTpl('${s.nm}','${tp}')">绑定此模板</button></div>`).join('');
+  openMask('pubVerMask',`<div class="pubVerBox">
+    <div class="pubPvHead">🧩 模板绑定管理 · ${tp}<span class="x" onclick="closeMask('pubVerMask')">✕</span></div>
+    <div style="max-height:58vh;overflow:auto">
+      <div style="padding:10px 20px 4px;font-size:11px;font-weight:700;color:#8ba0bd;letter-spacing:1px">已绑定站点（${bound.length}）</div>${rows}
+      <div style="padding:14px 20px 4px;font-size:11px;font-weight:700;color:#8ba0bd;letter-spacing:1px;border-top:1px solid #eef2f9">未绑定站点（${unbound.length}）· 点「绑定此模板」即切换</div>${unrows||'<div style="padding:18px;text-align:center;color:#9db0cc;font-size:12px">全部站点都已绑定该模板</div>'}
+    </div>
+    <div class="pubPvFoot"><span style="font-size:11px;color:#9db0cc;margin-right:auto">绑定 = 建站时选模板 · 换绑不丢内容，重新静态化发布后生效</span><button class="pghostbtn" onclick="closeMask('pubVerMask')">关 闭</button></div>
+  </div>`);
+  addLog('管理员','主站管理员',`<b>查看</b>模板「${tp}」的站点绑定关系（${bound.length} 个站点）`,'i');
+}
+function bindSiteTpl(nm,tp){
+  const s=sites.find(x=>x.nm===nm); if(!s)return;
+  s.tpl=tp; closeMask('pubVerMask'); renderSites();
+  if(FLOW.newSite&&FLOW.newSite.nm===nm)FLOW.newSite.tpl=tp;
+  addLog('管理员','主站管理员',`<b>换绑模板</b>站点「${nm}」→ ${tp}（换绑不丢内容 · 发布后生效）`,'s');
+  toast(`「${nm}」已绑定模板「${tp}」· 重新静态化发布后生效`);
+}
+/* 新建站点三步向导 */
+let wizStep=1;
+function openWiz(){ wizStep=1; renderWiz();
+  openModal('🏗','新建站点 · 三步完成','<div id="wizBox"></div>','创 建 站 点','blue',()=>{ doCreateSite(); });
+  document.getElementById('mBody').style.padding='11px 20px 4px'; renderWiz(); }
+function renderWiz(){ const b=document.getElementById('wizBox'); if(!b)return;
+  b.innerHTML=`<div class="wiz">
+      <div class="w ${wizStep===1?'on':wizStep>1?'done':''}">基本信息</div>
+      <div class="w ${wizStep===2?'on':wizStep>2?'done':''}">选模板</div>
+      <div class="w ${wizStep===3?'on':''}">授权管理员</div></div>
+    <div class="wizform">${wizStep===1?
+      `<div class="frow"><span class="k">站点名称</span><input class="v" id="wzNm" placeholder="如：工商管理学院"></div>
+       <div class="frow"><span class="k">二级域名</span><input class="v" id="wzUrl" placeholder="如 gs.dfxy.edu.cn"></div>
+       <div class="frow"><span class="k">所属分类</span><select class="v"><option>二级学院</option><option>职能部门</option><option>专题网站</option></select></div>`:
+     wizStep===2?
+      `<div class="frow"><span class="k">选择模板</span>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <div class="dept" style="display:flex;gap:8px">
+            <span class="on" onclick="wzTpl(this,'科技蓝')" style="border-radius:8px;padding:7px 12px">🔵 科技蓝</span>
+            <span onclick="wzTpl(this,'学术绿')" style="border-radius:8px;padding:7px 12px">🟢 学术绿</span>
+            <span onclick="wzTpl(this,'院系版')" style="border-radius:8px;padding:7px 12px">🏛 院系通用</span>
+          </div></div></div>
+       <div class="frow"><span class="k">首页栏目</span><div style="font-size:11px;color:#6b7f9e;line-height:1.7">院系概况 · 师资队伍 · 人才培养 · 科学研究 · 党建专栏 · 联系我们<br><span style="color:#2b6cf0">（可按需增删，模板自动适配）</span></div></div>`:
+      `<div class="frow"><span class="k">站长</span><input class="v" value="张主任（${'gs'}@dfxy.edu.cn）" readonly></div>
+       <div class="frow"><span class="k">内容编辑</span><div style="font-size:11.5px;color:#6b7f9e;line-height:1.7">默认授予权限：<b style="color:#2b6cf0">编辑</b>（本站新建/编辑/提交审核）<br>站长兼任<b style="color:#c07f00">部门审核</b>，终审仍由宣传部统一把关</div></div>
+       <div class="frow"><span class="k">上线方式</span><div style="font-size:11.5px;color:#6b7f9e">创建后进入「静态化发布」即可生成页面上线</div></div>`}
+    </div>`;
+  const ok=document.getElementById('mOk');
+  ok.textContent=wizStep<3?'下一步 →':'创 建 站 点';
+  ok.onclick=()=>{ if(wizStep<3){ if(wizStep===1&&!document.getElementById('wzNm').value.trim()){toast('请填写站点名称');return}
+    // 步骤切换会重绘表单，先把第1步输入值暂存，避免创建时读不到
+    if(wizStep===1){ wizNmHold=document.getElementById('wzNm').value.trim(); wizUrlHold=document.getElementById('wzUrl').value.trim(); }
+    wizStep++; renderWiz(); } else { confirmAction(); } }; }
+let wzTplSel='科技蓝';
+let wizNmHold='',wizUrlHold='';  // 向导第1步输入暂存（重绘后仍可读）
+/* 当前画布主题：取正在搭建的站点模板（学术绿→green，其余默认蓝），实现"选了什么模板、画布就是什么风格" */
+function canvasTheme(){ const f=(typeof FLOW!=='undefined')&&FLOW.newSite; return (f&&f.tpl==='学术绿')?'green':'blue'; }
+/* ============ 页面搭建画布 ============ */
+const CV_MAP = {
+  '通知公告':{ic:'📢',cls:'cvblue',d:'栏目块已生成：公告标题 + 日期 + 「更多」入口，发布后自动拉取本站点最新 8 条'},
+  '轮播图':{ic:'🖼',cls:'cvblue',d:'Banner 区块已生成：3~5 张大图轮播（素材库可选图），支持标题浮层与跳转链接'},
+  '要闻列表':{ic:'📰',cls:'cvblue',d:'要闻区块已生成：大图头条 + 4 条摘要列表，缩略图自动取稿件配图'},
+  '视频专区':{ic:'🎬',cls:'cvblue',d:'视频区块已生成：横向卡片位，支持上传 mp4 或外链 B 站/腾讯视频'},
+  '数字展示':{ic:'📊',cls:'cvblue',d:'数字看板已生成：4 个指标位（如 在校生 1.2 万 / 专业 58 个），数字滚动动效'},
+  '日历日程':{ic:'🗓',cls:'cvblue',d:'日历区块已生成：校历日程挂载，学术绿模板下自动换皮肤'},
+  '友情链接':{ic:'🔗',cls:'cvblue',d:'链接区块已生成：图标墙布局，数据来自调研表「常用链接」5 条 · 常用于上级单位/学信网入口'},
+  '二维码':{ic:'📱',cls:'cvblue',d:'二维码区块已生成：官方微信 / 抖音 / 微博三码并排（调研表 11.1-⑤ 新媒体矩阵要求）'},
+  '搜索框':{ic:'🔍',cls:'cvblue',d:'搜索区块已生成：全站全文检索，回车直达结果页'}
+};
+/* 每个组件的布局选项 + 内容来源（选什么 → 区块就渲染什么） */
+const CV_CFG = {
+  '轮播图':{kind:'img', srcLabel:'素材库（校方提供的 11 张校园实景）· 也可当场上传新图', layouts:['全宽大图','左图右标题'],opts:['素材库图1 · 校园全景','素材库图2 · 校门正景','⬆ 本地上传（演示：现场传一张运动会照片）'],pick:0,ph:'区块 Banner = 你刚选的那张素材图'},
+  '要闻列表':{kind:'list', srcLabel:'栏目树（建站时自动生成的栏目）', layouts:['大图头条+列表','双栏卡片'],opts:['「东方要闻」栏目 · 最新 4 条','「通知公告」栏目 · 最新 4 条'],pick:0,ph:'区块列表 = 该栏目真实稿件标题'},
+  '通知公告':{kind:'list', srcLabel:'栏目树（建站时自动生成的栏目）', layouts:['标题+日期列表','带摘要卡片'],opts:['本站「通知公告」栏目','全校跨站点聚合'],pick:0,ph:'区块列表 = 本站公告真实标题'},
+  '数字展示':{kind:'nums', srcLabel:'办学数据（系统设置里录入的指标）', layouts:['4 指标横排','2x2 网格'],opts:['办学数据：在校生/专业/教职工/实验室','自定义指标…'],pick:0,ph:'区块数字 = 你录入的办学数据'},
+  '友情链接':{kind:'links', srcLabel:'调研表第4节「常用链接」5 条（链接库预先维护 · 友情链接管理可增删改）', layouts:['图标墙','文字横排'],opts:['常用链接 5 条：山东财金集团/山东财经大学/山东教育厅/学信网/山东省人社厅','自定义链接…'],pick:0,ph:'区块图标墙 = 链接库里勾选启用的外链'},
+  '二维码':{kind:'qr', srcLabel:'新媒体账号（官方微信 · 官方抖音 · 官方微博，系统设置里维护）', layouts:['三码横排','页脚小图标'],opts:['官方微信/抖音/微博 三码','仅展示微信二维码'],pick:0,ph:'区块 = 三枚新媒体二维码并排（扫码即关注）'},
+  '视频专区':{kind:'video', srcLabel:'视频资源（上传 mp4 / 外链 B站·腾讯，本站演示用宣传片）', layouts:['横向卡片','大播放器'],opts:['校宣传片《东方之约》 · 01:28','上传 mp4 / 外链视频'],pick:0,ph:'区块 = 可点击播放的视频卡片'},
+  '日历日程':{kind:'plain',layouts:['月历视图','列表视图'],opts:['挂载校历','暂不配置'],pick:0,ph:'已挂载校历 → 区块显示校历日程'},
+  '搜索框':{kind:'plain',layouts:['顶部通栏','侧边小窗'],opts:['全站全文检索','仅标题检索'],pick:0,ph:'已开启全站检索 → 区块显示搜索条'}
+};
+/* 来源行内嵌摘要：让"来源→内容"同屏对应 */
+function srcEcho(name,oi){
+  if(name==='轮播图'){ if(oi===2)return '（刚上传「校运动会.jpg」→ 已入素材库并渲染到 Banner）'; return `（图=${(PHOTOS[oi]||PHOTOS[0]).slice(0,18)}… 已就位）`; }
+  if(name==='要闻列表'){ const c=oi===0?'东方要闻':'通知公告';
+    let arts=articles.filter(a=>a.cat===c&&a.stt==='pub'); if(arts.length<4)arts=articles.filter(a=>a.stt==='pub');
+    if(!arts.length)return `（「${c}」暂无已发布稿件 · 稿件审核发布后自动进入区块）`;
+    return `（已拉取「${c}」${arts.length} 条已发布 · 首条：${arts[0].title.slice(0,14)}…）`; }
+  if(name==='通知公告'){ let arts=articles.filter(a=>a.cat==='通知公告'&&a.stt==='pub'); if(arts.length<4)arts=articles.filter(a=>a.stt==='pub');
+    if(!arts.length)return '（本站公告暂无已发布稿件 · 审核发布后自动进入区块）';
+    return `（已拉取本站公告 ${arts.length} 条已发布 · 首条：${arts[0].title.slice(0,14)}…）`; }
+  if(name==='数字展示'){ return '（4 项指标已就位）'; }
+  if(name==='友情链接'){ return '（链接库 5 条已勾选启用 · 山东财金集团/山东财经大学/山东教育厅/学信网/山东省人社厅）'; }
+  if(name==='二维码'){ return '（3 个官方账号二维码已挂载）'; }
+  return ''; }
+/* 区块真实内容渲染：选中什么就渲染什么 */
+function cvBody(name,c){
+  if(name==='轮播图'){ 
+    if(c===2){ // 上传分支：模拟刚上传的运动会照片（取素材包另一张 + 角标）
+      const up=PHOTOS[4]||PHOTOS[0];
+      return `<div class="cvBanner" style="background-image:url('${PDIR}${up}')"><span class="upTag">⬆ 刚上传 · 校运动会.jpg</span><div class="bantx">山东财经大学东方学院 · 欢迎您</div></div>`; }
+    const p=PHOTOS[c]||PHOTOS[0];
+    return `<div class="cvBanner" style="background-image:url('${PDIR}${p}')"><div class="bantx">山东财经大学东方学院 · 欢迎您</div></div>`; }
+  if(name==='要闻列表'){ let arts=articles.filter(a=>a.cat==='东方要闻'&&a.stt==='pub'); if(arts.length<4)arts=articles.filter(a=>a.stt==='pub');
+    return arts.slice(0,4).map(a=>`<div class="cvNews"><b>▪</b><span class="nt">${a.title.slice(0,24)}</span><span class="nd">${a.date}</span></div>`).join(''); }
+  if(name==='通知公告'){ let arts=articles.filter(a=>a.cat==='通知公告'&&a.stt==='pub'); if(arts.length<4)arts=articles.filter(a=>a.stt==='pub');
+    return arts.slice(0,5).map(a=>`<div class="cvNews"><b>▪</b><span class="nt">${a.title.slice(0,24)}</span><span class="nd">${a.date}</span></div>`).join(''); }
+  if(name==='数字展示'){ const defs=[['12,800','在校生'],['58','本科专业'],['1,060','教职工'],['32','实验室']];
+    return `<div class="cvNums">`+defs.map((d,i)=>`<div contenteditable="false" data-idx="${i}" title="点击修改 · 仅系统管理员（办学数据编辑权限）可改，改动全程留痕"><b>${d[0]}</b><span>${d[1]}</span></div>`).join('')+`</div>`; }
+  if(name==='友情链接'){ const ls=[['🏢','山东财金集团',1],['🎓','山东财经大学',1],['🏛','山东教育厅',1],['🔎','学信网',1],['💼','山东省人社厅',1]];
+    return `<div class="cvLinks" data-cv="links">`+ls.map((l,i)=>`<span class="${l[2]?'on':'off'}" data-i="${i}" title="点击启用/停用">${l[0]}${l[1]}</span>`).join('')+`<span class="lnkMgr" title="去友情链接管理维护更多">⚙ 管理</span></div>`; }
+  if(name==='二维码'){ const qrs=[['💬','官方微信','#25d366'],['🎵','官方抖音','#111'],['🧣','官方微博','#e6162d']];
+    return `<div class="cvQrs" data-cv="qrs">`+qrs.map(q=>`<div class="cvQr"><div class="qrbox" style="background:${q[2]}22"><div class="qrgrid">${'▫▫▫▫▫▫▫▫▫'.split('').map((_,k)=>`<i style="${[0,2,4,6,8].includes(k)?'':''}"></i>`).join('')}</div></div><b>${q[0]} ${q[1]}</b></div>`).join('')+`</div><div class="cvhint">📱 扫码关注官方新媒体矩阵（调研表 11.1-⑤：首页含官方微信/抖音/微博入口）</div>`; }
+  if(name==='视频专区'){
+    return `<div class="cvVideo" style="background-image:url('${PDIR}${PHOTOS[9]||PHOTOS[0]}')" title="点击播放 · 再点击暂停">
+      <div class="vpTitle" style="display:none"></div><div class="vpBtn">▶</div>
+      <div class="vpBar"><div class="vpTrack"><div class="vpFill"></div></div><span class="vpTime">00:00 / 01:28</span></div>
+    </div><div class="cvhint">🎬 点击画面即可播放/暂停 · 演示用真素材图当封面（调研表 11.2-⑨：视频等多媒体流畅稳定播放 · 转码后多端适配）</div>`; }
+  return '<div class="cvNews" style="color:#9db0cc">（占位 · 可继续配置）</div>';
+}
+let cfgIdx=0;
+/* 区块排序：↑↓ 按钮 + 区块间拖拽换位 */
+function syncMvBtns(){
+  const zone=document.getElementById('canvasZone');
+  const blocks=[...zone.querySelectorAll(':scope > .cvBlock')];
+  blocks.forEach((b,i)=>{
+    const up=b.querySelector('.mv.up'),dn=b.querySelector('.mv.dn');
+    if(up)up.classList.toggle('dis',i===0);
+    if(dn)dn.classList.toggle('dis',i===blocks.length-1);
+  });
+}
+function moveBlock(div,dir){
+  const zone=document.getElementById('canvasZone');
+  if(dir<0){ const prev=div.previousElementSibling; if(prev&&prev.classList.contains('cvBlock'))zone.insertBefore(div,prev); }
+  else{ const next=div.nextElementSibling; if(next&&next.classList.contains('cvBlock'))zone.insertBefore(next,div); }
+  syncMvBtns();
+  const nm=blockName(div);
+  addLog('管理员','主站管理员',`<b>调整顺序</b>「${nm}」区块${dir<0?'上移':'下移'}`,'s');
+}
+function blockName(div){
+  const h=div.querySelector('.cvh'); if(!h)return '组件';
+  return h.childNodes[0].textContent.trim().replace(/^[^\u4e00-\u9fa5]+/,'');
+}
+function initBlockDrag(div){
+  div.draggable=true;
+  div.addEventListener('dragstart',e=>{
+    e.stopPropagation();
+    e.dataTransfer.effectAllowed='move';
+    e.dataTransfer.setData('text/plain','__move__');
+    div.classList.add('dragging');
+  });
+  div.addEventListener('dragend',()=>{
+    div.classList.remove('dragging');
+    document.querySelectorAll('.cvBlock.dropBefore,.cvBlock.dropAfter').forEach(x=>x.classList.remove('dropBefore','dropAfter'));
+    syncMvBtns();
+  });
+  div.addEventListener('dragover',e=>{
+    if(!div.classList.contains('dragging') && document.querySelector('.cvBlock.dragging')){
+      e.preventDefault(); e.stopPropagation();
+      const r=div.getBoundingClientRect();
+      const after=(e.clientY-r.top)>r.height/2;
+      div.classList.toggle('dropAfter',after);
+      div.classList.toggle('dropBefore',!after);
+    }
+  });
+  div.addEventListener('dragleave',()=>div.classList.remove('dropBefore','dropAfter'));
+  div.addEventListener('drop',e=>{
+    const drag=document.querySelector('.cvBlock.dragging');
+    if(drag && drag!==div){ e.preventDefault(); e.stopPropagation();
+      const r=div.getBoundingClientRect();
+      const after=(e.clientY-r.top)>r.height/2;
+      const zone=document.getElementById('canvasZone');
+      zone.insertBefore(drag, after?div.nextSibling:div);
+      const nm=blockName(drag);
+      addLog('管理员','主站管理员',`<b>调整顺序</b>「${nm}」区块拖拽换位`,'s');
+    }
+    div.classList.remove('dropBefore','dropAfter');
+  });
+}
+function addToCanvas(name,opts){
+  const zone=document.getElementById('canvasZone'),empty=document.getElementById('cvEmpty');
+  const conf=CV_MAP[name]||{ic:'🧩',cls:'',d:'区块已生成'};
+  const cfg=CV_CFG[name]||{layouts:['默认布局'],opts:['默认内容'],pick:0,ph:'区块已生成'};
+  const li=(opts&&opts.layout)!=null?opts.layout:cfg.pick;
+  const oi=(opts&&opts.content)!=null?opts.content:cfg.pick;
+  if(empty)empty.style.display='none';
+  const div=document.createElement('div');
+  // 区块风格跟随正在搭建的站点模板（学术绿→cvgreen，默认cvblue）
+  div.className='cvBlock '+(canvasTheme()==='green'?'cvgreen':conf.cls||'cvblue');
+  div.innerHTML=`<div class="cvh">${conf.ic} ${name}
+      <span class="cvlay">▦ ${cfg.layouts[li]}</span>
+      <span class="mv up" title="上移">▲</span><span class="mv dn" title="下移">▼</span>
+      <span class="x" title="移除">✕</span></div>
+    <div class="cvd">${conf.d}</div>
+    <div class="cvsrc">📦 内容来源：${cfg.opts[oi]}
+      <span class="srcEcho">${srcEcho(name,oi)}</span>
+    </div>
+    <div class="cvbody">${cvBody(name,oi)}</div>`;
+  div.querySelector('.x').onclick=()=>{div.remove();if(!zone.querySelector('.cvBlock'))empty.style.display='';};
+  div.querySelector('.mv.up').onclick=()=>moveBlock(div,-1);
+  div.querySelector('.mv.dn').onclick=()=>moveBlock(div,1);
+  initBlockDrag(div);
+  zone.appendChild(div);
+  syncMvBtns();
+  addLog('管理员','主站管理员',`<b>搭建</b>「${name}」布局=${cfg.layouts[li]} · 内容=${cfg.opts[oi].slice(0,18)}…`,'s');
+  toast(`「${name}」区块已生成（所选内容已渲染进区块）✓`);
+}
+/* mini 视频播放器（画布内）：点击播放，进度条走动，再点暂停 */
+function playCvVideo(el){
+  const fill=el.querySelector('.vpFill'),time=el.querySelector('.vpTime');
+  el.classList.add('playing');
+  if(el._vpTimer){clearInterval(el._vpTimer)}
+  let t=el._vpT||0;
+  el._vpTimer=setInterval(()=>{ t+=0.1; if(t>=88){t=0}
+    el._vpT=t;
+    if(fill)fill.style.width=(t/88*100)+'%';
+    if(time)time.textContent=fmtVt(t,88);
+  },100);
+  addLog('管理员','主站管理员','<b>播放</b>视频专区宣传视频（画布区块内）','i');
+}
+function stopCvVideo(el){
+  el.classList.remove('playing');
+  if(el._vpTimer){clearInterval(el._vpTimer);el._vpTimer=null;}
+}
+function fmtVt(t,dur){ const f=s=>String(Math.floor(s)).padStart(2,'0');
+  return f(Math.floor(t/60))+':'+f(Math.floor(t%60))+' / '+f(Math.floor(dur/60))+':'+f(dur%60); }
+/* 预览弹层大播放器：同一套逻辑，块头更大 */
+function playPvVideo(el){
+  const fill=el.querySelector('.vpFill'),time=el.querySelector('.vpTime');
+  el.classList.add('playing');
+  if(el._vpTimer){clearInterval(el._vpTimer)}
+  let t=el._vpT||0;
+  el._vpTimer=setInterval(()=>{ t+=0.1; if(t>=88){t=0}
+    el._vpT=t;
+    if(fill)fill.style.width=(t/88*100)+'%';
+    if(time)time.textContent=fmtVt(t,88);
+  },100);
+  addLog('管理员','主站管理员','<b>播放</b>宣传视频（前台预览 · 大播放器）','i');
+}
+/* 内容选择弹层：先选布局、再选内容，确认后才生成区块 */
+let cpState={name:null,layout:0,content:0};
+function openCvPick(name){
+  const cfg=CV_CFG[name]; if(!cfg){addToCanvas(name);return;}
+  cpState={name,layout:cfg.pick,content:cfg.pick};
+  document.getElementById('cpIc').textContent=(CV_MAP[name]||{}).ic||'🧩';
+  document.getElementById('cpTitle').textContent=`配置「${name}」组件`;
+  const layBox=document.getElementById('cpLayouts'),conBox=document.getElementById('cpContents');
+  layBox.innerHTML=cfg.layouts.map((l,i)=>`<div class="cpOpt${i===cfg.pick?' on':''}" data-i="${i}">▦ ${l}</div>`).join('');
+  const srcTag=document.getElementById('cpSrcTag');
+  if(srcTag){ srcTag.innerHTML=`来源：${cfg.srcLabel||'系统数据'}`; srcTag.style.display=''; }
+  conBox.innerHTML=cfg.opts.map((o,i)=>{
+    let th='';
+    if(name==='轮播图'&&o.indexOf('上传')<0){ const p=PHOTOS[i]||PHOTOS[0]; th=`<span class="opthumb" style="background-image:url('${PDIR}${p}')"></span>`; }
+    if(o.indexOf('上传')>=0) th='<span class="opthumb up" style="display:flex;align-items:center;justify-content:center;font-size:15px;background:#eef4ff;color:#2b6cf0">⬆</span>';
+    return `<div class="cpOpt${i===cfg.pick?' on':''}" data-i="${i}">${th}<span>${o}</span></div>`;
+  }).join('');
+  [...layBox.children].forEach(el=>el.onclick=()=>{cpState.layout=+el.dataset.i;
+    [...layBox.children].forEach(x=>x.classList.remove('on'));el.classList.add('on');});
+  [...conBox.children].forEach(el=>el.onclick=()=>{cpState.content=+el.dataset.i;
+    [...conBox.children].forEach(x=>x.classList.remove('on'));el.classList.add('on');});
+  document.getElementById('cpOk').onclick=()=>{ addToCanvas(cpState.name,{layout:cpState.layout,content:cpState.content}); closeCvPick(); };
+  document.getElementById('cvPickMask').classList.add('on');
+}
+function closeCvPick(){ document.getElementById('cvPickMask').classList.remove('on'); }
+/* ============ 组件组合预览：把画布区块按顺序拼成整页前台效果 ============ */
+function openCvPv(){
+  const zone=document.getElementById('canvasZone');
+  const blocks=[...zone.querySelectorAll('.cvBlock')];
+  const page=document.getElementById('cbPvPage');
+  const meta=document.getElementById('cbPvMeta');
+  if(!blocks.length){ toast('画布还是空的 —— 先拖几个组件进来再预览组合效果'); return; }
+  const th=canvasTheme();
+  const navBg=th==='green'?'linear-gradient(90deg,#123f2e,#2f9a63)':'linear-gradient(90deg,#0c2d5e,#1e5bc4)';
+  const tplName=th==='green'?'学术雅致绿':'现代科技蓝';
+  meta.textContent=`本次组合共 ${blocks.length} 个组件 · 模板风格：${tplName} · 顶部通栏导航 + `+blocks.map(b=>b.querySelector('.cvh').childNodes[0].textContent.trim()).join(' + ')+' · 按画布摆放顺序渲染';
+  let html=`<div class="cbPvNav" style="background:${navBg}">🎓 山东财经大学东方学院<span class="navlinks"><span>东方要闻</span><span>通知公告</span><span>院系设置</span><span>招生专栏</span></span></div>`;
+  blocks.forEach(b=>{
+    const nm=b.querySelector('.cvh').childNodes[0].textContent.trim().replace(/^[^\u4e00-\u9fa5]+/,'');
+    const numTxt=el=>el?el.textContent:'';
+    if(nm==='轮播图'){ const bg=b.querySelector('.cvBanner'); const st=bg?bg.style.backgroundImage:'';
+      html+=`<div class="cbPvSec"><span class="secTag">🖼 轮播图</span><div class="cbPvBanner" style="background-image:${st}"><div class="bantx">山东财经大学东方学院 · 欢迎您</div></div></div>`; }
+    else if(nm==='要闻列表'||nm==='通知公告'){ const rows=[...b.querySelectorAll('.cvNews')].slice(0,4).map(r=>{const t=r.querySelector('.nt');const d=r.querySelector('.nd');
+        return `<div class="cbPvNews"><b>▪</b><span class="nt">${t?t.textContent:''}</span><span class="nd">${d?d.textContent:''}</span></div>`;}).join('');
+      html+=`<div class="cbPvSec"><span class="secTag">${nm==='要闻列表'?'📰 东方要闻':'📢 通知公告'}</span>${rows||'<div style="color:#9db0cc">（栏目稿件）</div>'}</div>`; }
+    else if(nm==='数字展示'){ const defs=[...b.querySelectorAll('.cvNums > div')].map(d=>[numTxt(d.querySelector('b')),numTxt(d.querySelector('span'))]);
+      const use=defs.length?defs:[['13,200','在校生'],['58','本科专业'],['1,060','教职工'],['32','实验室']];
+      html+=`<div class="cbPvSec"><span class="secTag">📊 数字展示</span><div class="cbPvNums">`+use.map(d=>`<div><b>${d[0]}</b><span>${d[1]}</span></div>`).join('')+`</div></div>`; }
+    else if(nm==='视频专区'){ const vd=b.querySelector('.cvVideo'); const st=vd?vd.style.backgroundImage:'';
+      html+=`<div class="cbPvSec"><span class="secTag">🎬 视频专区</span><div class="cbPvVid" style="background-image:${st}"></div></div>`; }
+    else if(nm==='友情链接'){ const ls=[...b.querySelectorAll('.cvLinks span[data-i]')].filter(s=>!s.classList.contains('off')).map(s=>`<span>${s.textContent}</span>`).join('');
+      html+=`<div class="cbPvSec"><span class="secTag">🔗 友情链接（常用链接库）</span><div class="cbPvLinks">${ls}</div></div>`; }
+    else if(nm==='二维码'){ html+=`<div class="cbPvSec"><span class="secTag">📱 新媒体矩阵</span><div class="cbPvQrs">`+
+        [['官方微信',''],['官方抖音',''],['官方微博','']].map(q=>`<div class="cbPvQr"><div class="qbox">${'<i></i>'.repeat(9)}</div><b>${q[0]}</b></div>`).join('')+`</div></div>`; }
+    else { html+=`<div class="cbPvSec"><span class="secTag">🧩 ${nm}</span><div style="color:#9db0cc">（区块渲染区）</div></div>`; }
+  });
+  page.innerHTML=html;
+  document.getElementById('cbPvMask').classList.add('on');
+  addLog('管理员','主站管理员',`<b>组合预览</b>画布 ${blocks.length} 个组件拼成整页前台效果`,'i');
+}
+function closeCvPv(){ document.getElementById('cbPvMask').classList.remove('on'); }
+/* 画布区块交互：视频点播、数字可改、链接可启停、链接管理入口 */
+document.getElementById('canvasZone').addEventListener('click',e=>{
+  // 视频播放器：点击播放/暂停（自带处理，不走下方委托）
+  const vd=e.target.closest('.cvVideo');
+  if(vd){ vd.classList.contains('playing')?stopCvVideo(vd):playCvVideo(vd); return; }
+  // 数字指标：点中数字→行内编辑（管理员权限语义 + 留痕）
+  const numDiv=e.target.closest('.cvNums > div');
+  if(numDiv){ const b=numDiv.querySelector('b'); b.contentEditable='true'; b.focus();
+    document.execCommand&&document.execCommand('selectAll',false,null);
+    b.onblur=()=>{ b.contentEditable='false';
+      addLog('管理员','系统管理员',`<b>修改</b>办学指标「${numDiv.querySelector('span').textContent}」→ ${b.textContent}（权限校验通过 · 已留痕）`,'w');
+      toast('管理员权限校验通过 · 指标已更新并留痕 · 全站同步'); };
+    return; }
+  // 友情链接：点击启停
+  const lk=e.target.closest('.cvLinks span[data-i]');
+  if(lk){ lk.classList.toggle('off'); lk.classList.toggle('on');
+    const name=lk.textContent.replace(/^(🏢|🎓|🏛|🔎|💼)/,'');
+    addLog('管理员','主站管理员',`<b>${lk.classList.contains('off')?'停用':'启用'}</b>友情链接「${name}」`,'w');
+    toast(lk.classList.contains('off')?'已停用 · 页面同步隐藏':'已启用 · 页面同步显示');
+    return; }
+  // 管理入口
+  const mg=e.target.closest('.lnkMgr');
+  if(mg){ toast('演示：跳转「友情链接管理」—— 新增/改名/排序/启停全在此维护'); return; }
+});
+
+function clearCanvas(){ const zone=document.getElementById('canvasZone');
+  zone.querySelectorAll('.cvBlock').forEach(b=>b.remove());
+  const empty=document.getElementById('cvEmpty'); if(empty)empty.style.display='';
+  toast('画布已清空'); }
+/* 搭建完成 → 发布：带校验引导到静态化发布页 */
+function publishBuiltPage(){
+  const zone=document.getElementById('canvasZone');
+  const n=zone.querySelectorAll('.cvBlock').length;
+  if(!n){ toast('画布还是空的 —— 先拖几个组件搭建页面，再发布'); return; }
+  // 联动：若是新建站点流程 → 记录搭建完成，静态化发布页将出现该站点任务
+  if(typeof FLOW!=='undefined'&&FLOW.newSite&&!FLOW.newSite.published){ FLOW.newSite.built=true; FLOW.newSite.blocks=n; renderFlowBanners(); }
+  addLog('管理员','主站管理员',`<b>提交发布</b>页面搭建完成（${n} 个组件区块）→ 进入静态化发布`,'s');
+  toast(`搭建完成（${n} 个区块）→ 已进入「静态化发布」，点「发布」即生成正式页面`);
+  goto('pub');
+}
+function initCanvas(){
+  const zone=document.getElementById('canvasZone'); if(!zone)return;
+  document.querySelectorAll('#compRow .comp').forEach(c=>{
+    const name=c.textContent.trim().replace(/^[^A-Za-z\u4e00-\u9fa5]+/,'');
+    c.addEventListener('click',()=>openCvPick(name));
+    c.addEventListener('dragstart',e=>{e.dataTransfer.setData('text/plain',name);});
+  });
+  zone.addEventListener('dragover',e=>{e.preventDefault();zone.classList.add('dragover');});
+  zone.addEventListener('dragleave',()=>zone.classList.remove('dragover'));
+  zone.addEventListener('drop',e=>{e.preventDefault();zone.classList.remove('dragover');
+    // 区块内部换位由各 .cvBlock 自己处理（已在内部 stopPropagation），这里只处理组件库新拖入
+    if(document.querySelector('.cvBlock.dragging'))return;
+    const name=e.dataTransfer.getData('text/plain'); if(name && name!=='__move__')addToCanvas(name);});
+}
+initCanvas();
+
+function wzTpl(el,name){ el.parentNode.querySelectorAll('span').forEach(s=>s.classList.remove('on')); el.classList.add('on'); wzTplSel=name; }
+function doCreateSite(){
+  // 优先取暂存值（第1步输入），再兜底读当前输入框（向导未重绘时）
+  const nm=wizNmHold||(document.getElementById('wzNm')&&document.getElementById('wzNm').value.trim())||'新站点';
+  const url=wizUrlHold||(document.getElementById('wzUrl')&&document.getElementById('wzUrl').value.trim())||'new.dfxy.edu.cn';
+  sites.push({nm,url,ic:'🆕',c:'#5a7db0',stt:'drf',arts:0,tpl:wzTplSel});
+  renderSites(); flowMarkSite(nm,url,wzTplSel);
+  addLog('管理员','主站管理员',`<b>创建站点</b>「${nm}」· 模板${wzTplSel} · 已生成站点目录`,'i');
+  toast(`「${nm}」创建成功 · 模板${wzTplSel} · 正在进入「模板与组件」搭建页面`);
+  goto('tpl'); }  // 建完直接跳模板与组件，画布按所选模板换肤，形成"建站→搭建"闭环
+
+/* ============ 静态化发布 ============ */
+const PUB_STATE={}; // 每站点状态：审核/版本
+const PUB_VERSIONS={1:[['v103','今天 12:40','当前线上版'],['v102','昨天 16:20',''],['v101','周一 09:15','']],
+                    2:[['v087','昨天 17:30','当前线上版'],['v086','上周五 14:00','']]};
+function pubPreview(n){
+  const meta={1:['官网主站','首页（轮播图 · 东方要闻 · 通知公告）· 院系设置 · 招生就业 · 校园文化 · 页脚'],
+              2:['招生专题网','招生政策 · 院系专业 · 报名入口 · 常见问题'],
+              3:['继续教育学院','（该站点本次无内容变更，预览为当前线上版）']}[n]||['站点',''];
+  let secs='';
+  if(n===1){ const arts=articles.filter(a=>a.cat==='东方要闻').slice(0,3);
+    secs=`<div class="pvSec"><b>🖼 轮播图</b><div class="d">3 张 Banner · 素材库校园实景</div></div>
+      <div class="pvSec"><b>📰 东方要闻</b><div class="d">${arts.map(a=>a.title.slice(0,22)).join(' ／ ')}…（审核通过的稿件才进静态页）</div></div>
+      <div class="pvSec"><b>📢 通知公告</b><div class="d">本站最新 8 条 · 含发布时间与「更多」入口</div></div>`;
+  } else if(n===2){ secs=`<div class="pvSec"><b>🎓 招生专题</b><div class="d">2026 招生政策 3 篇 · 报名入口按钮</div></div>`; }
+  else { secs=`<div class="pvSec"><b>💼 继续教育</b><div class="d">当前线上版 · 无本次变更内容</div></div>`; }
+  openMask('pubPvMask',`<div class="pubPvBox">
+    <div class="pubPvHead">👁 发布前预览 · ${meta[0]} <span style="font-size:10.5px;color:#9db0cc;font-weight:400">（静态化生成效果 · 非线上）</span><span class="x" onclick="closeMask('pubPvMask')">✕</span></div>
+    <div class="pubPvBody">${secs}<div class="pvSec" style="border-left-color:#2f9a63"><b>📱 移动端适配</b><div class="d">响应式布局 · IPv6 双栈可访问</div></div></div>
+    <div class="pubPvFoot"><button class="pghostbtn" onclick="closeMask('pubPvMask')">关 闭</button><button class="ppubtn" onclick="closeMask('pubPvMask');${n===3?`toast('该站点无内容变更，已跳过')`:`publishOne(${n},document.getElementById('pubBtn${n}')||event.target)`}">确认无误 · 直接发布</button></div>
+  </div>`);
+  addLog('管理员','主站管理员',`<b>预览</b>「${meta[0]}」静态化生成效果（发布前）`,'i');
+}
+function pubApprove(n,btn){
+  const tag=document.getElementById('aprTag'+n); if(!tag)return;
+  tag.textContent='已审核';tag.style.background='#e6f7ee';tag.style.color='var(--ok)';
+  btn.disabled=true;btn.textContent='已审核 ✓';btn.style.color='var(--ok)';btn.style.borderColor='#bfe8cf';
+  PUB_STATE[n]='approved';
+  addLog('管理员','系统管理员',`<b>审核通过</b>站点 #${n} 待发布变更（发布门禁解除）`,'s');
+  toast('审核通过 · 现在可发布（未审核的站点发布会拦截）');
+}
+function pubRollback(n,btn){
+  const vs=PUB_VERSIONS[n]||[];
+  const prev=vs.find(v=>!v[2]); // 第一个非当前版本
+  const nm={1:'官网主站',2:'招生专题网',3:'继续教育学院'}[n]||('站点 #'+n);
+  if(!prev){ toast('没有更早的可回滚版本'); return; }
+  pubLog(`⟲ 回滚 ${nm}：${'当前版'} → ${prev[0]}（${prev[1]}）…`);
+  const bar=document.querySelector('#pg'+n+' i'); let p=0;
+  btn.disabled=true;btn.textContent='回滚中…';
+  const tm=setInterval(()=>{ p+=30; if(p>=100){ p=100;clearInterval(tm);
+    pubLog(`回滚完成 · 线上已切回 ${prev[0]} · 原版本保留可再切回`,true);
+    addLog('系统','自动',`<b>回滚</b>${nm} → ${prev[0]}（秒级生效）`,'w');
+    toast(`已回滚至 ${prev[0]} · 秒级生效`);
+    btn.disabled=false;btn.textContent='⏱ 回滚';
+    const it=document.querySelector(`#pubList a[onclick="pubVersionList(${n})"]`);
+    if(it)it.textContent=`历史版本 ${vs.length+1}`;
+  } bar.style.width=p+'%'; },220);
+}
+function pubVersionList(n){
+  const vs=PUB_VERSIONS[n]||[];
+  const nm={1:'官网主站',2:'招生专题网',3:'继续教育学院'}[n]||('站点 #'+n);
+  openMask('pubVerMask',`<div class="pubVerBox">
+    <div class="pubPvHead">⏱ 版本历史 · ${nm}<span class="x" onclick="closeMask('pubVerMask')">✕</span></div>
+    <div style="max-height:56vh;overflow:auto">
+    ${vs.map(v=>`<div class="pubVerRow"><span class="vn">${v[0]}</span><span class="vt2">${v[1]} · 快照留存 · 可回滚至该版本</span>${v[2]?'<span class="cur">当前线上</span>':`<button class="pghostbtn" style="height:26px;padding:0 10px;font-size:11px" onclick="closeMask('pubVerMask');pubRollbackTo(${n},'${v[0]}')">回滚至此</button>`}</div>`).join('')}
+    </div>
+    <div class="pubPvFoot"><span style="font-size:11px;color:#9db0cc;margin-right:auto">每次发布自动留存快照 · 回滚秒级生效 · 可反复切换</span><button class="pghostbtn" onclick="closeMask('pubVerMask')">关 闭</button></div>
+  </div>`);
+}
+function pubRollbackTo(n,ver){
+  closeMask('pubVerMask');
+  const nm={1:'官网主站',2:'招生专题网',3:'继续教育学院'}[n]||('站点 #'+n);
+  pubLog(`⟲ 回滚 ${nm} → ${ver} …`);
+  addLog('系统','自动',`<b>回滚</b>${nm} → ${ver}（秒级生效）`,'w');
+  toast(`已回滚至 ${ver}`);
+}
+function openMask(id,html){ const m=document.getElementById(id);
+  if(html)m.innerHTML=html; m.classList.add('on'); }
+function closeMask(id){ document.getElementById(id).classList.remove('on'); }
+function pubLog(t,ok){ const c=document.getElementById('pubConsole');
+  const d=document.createElement('div'); d.innerHTML=`<span class="t">[${now().slice(11,19)}]</span>${t}${ok?' <span class="ok">✓</span>':''}`;
+  c.appendChild(d); c.scrollTop=c.scrollHeight; }
+function publishOne(n,btn){
+  // 审核门禁：有审核标签且未审核 → 拦截（站点3无变更无审核环节）
+  const tag=document.getElementById('aprTag'+n);
+  if(tag && tag.textContent==='待审核'){ toast('该站点变更尚未审核 —— 先点「✓ 审核」，通过后才能发布'); pubLog(`⛔ 站点 #${n} 发布被拦截：变更未审核`); return; }
+  btn.disabled=true; btn.textContent='发布中…';
+  const bar=document.querySelector('#pg'+n+' i'); let p=0;
+  pubLog(`开始静态化站点 #${n} · 生成 HTML → 推送 Nginx`);
+  const tm=setInterval(()=>{ p+=Math.random()*28+12; if(p>=100){p=100;clearInterval(tm);
+    pubLog(`站点 #${n} 发布完成 · 用时 ${(Math.random()*2+1).toFixed(1)}s · 快照已留存`,true);
+    pubLog(`站点 #${n} 上一版本自动归档 · 如需回退点「⏱ 回滚」`);
+    addLog('系统','自动',`<b>静态化</b>站点 #${n} 发布成功（版本快照 v${Math.floor(Math.random()*900+100)}）`,'i');
+    btn.textContent='已完成'; btn.style.background='#e6f7ee'; btn.style.color='var(--ok)';
+    const rb=document.getElementById('rbBtn'+n); if(rb)rb.style.display='';
+    toast('发布成功 · 已留存快照 · 可回滚');
+    const it=document.querySelector(`#pubList a[onclick="pubVersionList(${n})"]`);
+    if(it){ const vs=PUB_VERSIONS[n]||[]; it.textContent=`历史版本 ${vs.length+1}`; }
+  }
+    bar.style.width=p+'%'; },260); }
+function publishAll(){ ['1','2'].forEach((n,i)=>setTimeout(()=>{
+    // 优先用带 id 的发布按钮；旧选择器兜底
+    const btn=document.getElementById('pubBtn'+n)||document.querySelector(`#pg${n} ~ * .ppubtn, #pg${n}`).closest('.pubrow').querySelector('.ppubtn');
+    publishOne(+n,btn); },i*900)); }
+
+/* ============ 组件拖拽（模板页） ============ */
+function initCompDrag(){ document.querySelectorAll('#compRow .comp').forEach(c=>{
+  // 不再 setData 覆盖（initCanvas 已用 text/plain 传组件名，这里再 setData('text') 会互相干扰）
+  c.addEventListener('dragstart',()=>{ c.style.opacity=.5; });
+  c.addEventListener('dragend',()=>{ c.style.opacity=1; });});}
+
+/* ============ 素材图集 + 灯箱 ============ */
+function openLB(img,cap){ document.getElementById('lbImg').src=PDIR+img;
+  document.getElementById('lbCap').textContent=(cap||'')+' · 素材包实拍 1600px 原图';
+  document.getElementById('lbMask').classList.add('on'); }
+function renderGal(){ const g=document.getElementById('pvGal'); if(!g)return;
+  g.innerHTML=PHOTOS.map((p,i)=>`<div class="gitem" style="background-image:url('${PDIR}${p}')" onclick="openLB('${p}','校园实景 ${i+1}/11')"><i>图${i+1}</i></div>`).join(''); }
+renderGal();
+
+/* ============ 双风格对比滑杆 ============ */
+function initVsSlider(){ const wrap=document.querySelector('.vslider-wrap'); if(!wrap)return;
+  const clip=document.getElementById('vsClip'),handle=document.getElementById('vsHandle');
+  let dragging=false;
+  const setPos=pct=>{ pct=Math.max(6,Math.min(94,pct));
+    clip.style.clipPath=`inset(0 0 0 ${pct}%)`; handle.style.left=pct+'%'; };
+  const fromEvent=e=>{ const r=wrap.getBoundingClientRect();
+    const x=(e.touches?e.touches[0].clientX:e.clientX)-r.left; return x/r.width*100; };
+  handle.addEventListener('mousedown',()=>dragging=true);
+  handle.addEventListener('touchstart',()=>dragging=true,{passive:true});
+  window.addEventListener('mousemove',e=>{ if(dragging)setPos(fromEvent(e)); });
+  window.addEventListener('touchmove',e=>{ if(dragging)setPos(fromEvent(e)); },{passive:true});
+  window.addEventListener('mouseup',()=>dragging=false);
+  window.addEventListener('touchend',()=>dragging=false);
+  wrap.addEventListener('click',e=>{ if(!dragging)setPos(fromEvent(e)); });
+  wrap._sweepTo=pct=>setPos(pct); }
+setTimeout(initVsSlider,300);
+
+/* ============ 敏感词库管理 ============ */
+/* 新增敏感词：除对后续新稿生效外，立即回扫全库「已发布」稿件 —— 命中即前台摘除、转待复审重新走审核流 */
+function addSensWord(){ const w=document.getElementById('sensInput'); if(!w)return;
+  const v=w.value.trim(); if(!v){toast('请输入要添加的敏感词');return}
+  if(SENS_WORDS.includes(v)){toast('该词已存在');return}
+  SENS_WORDS.push(v); const ul=document.getElementById('sensList');
+  const li=document.createElement('div'); li.className='sensword'; li.innerHTML=`<span>${v}</span><a onclick="removeSensWord(this,'${v}')">移除</a>`;
+  ul.prepend(li); w.value=''; updateSensTotal();
+  addLog('管理员','主站管理员',`<b>敏感词库</b>新增词条「${v}」· 即刻全站生效`,'w');
+  const hits=articles.filter(a=>a.stt==='pub'&&a.title.includes(v));
+  if(!hits.length){ const pubN=articles.filter(a=>a.stt==='pub').length;
+    toast(`敏感词已添加 · 已回扫 ${pubN} 篇已发布稿件，无命中`); return; }
+  openModal('!','新增敏感词 · 已发布稿件回扫',`词条「<b>${v}</b>」已加入词库。<br><br>回扫发现 <b>${hits.length}</b> 篇已发布稿件命中：<br><br>${hits.map(a=>`📄《${a.title.slice(0,22)}${a.title.length>22?'…':''}》<span class="stt pub" style="margin-left:6px">已发布</span>`).join('<br>')}<br><br>确认后系统将<b>自动摘除前台展示</b>（避免敏感内容继续对外），稿件转为「待复审」重新进入审核流：敏感词复审 → 宣传部终审 → 通过后重新发布。`,'一键摘除并转复审','ok',()=>{
+    const st=sites.find(s=>s.nm==='官网主站');
+    hits.forEach((a,i)=>{ a.stt='rev'; a.sttName='待复审';
+      if(st&&st.arts>0)st.arts--;
+      auditQueue.unshift({id:Date.now()+i,title:a.title,cat:a.cat,node:'敏感词复审',who:a.who,wait:'刚刚',urg:true,sensRecheck:true});
+      addLog('管理员','主站管理员',`<b>回扫命中</b>《${a.title.slice(0,14)}…》含新敏感词「${v}」→ 前台已摘除 · 转待复审`,'d'); });
+    if(st)renderSites();
+    refreshCanvasBlocks(); renderTable(); refreshAudit(); updateNavCounts();
+    toast(`${hits.length} 篇命中稿件已摘除 · 转入敏感词复审`); goto('audit'); });
+}
+/* 敏感词移除：词数组+DOM+计数 三处同步，移除即刻生效 */
+function removeSensWord(el,w){
+  const i=SENS_WORDS.indexOf(w); if(i>=0)SENS_WORDS.splice(i,1);
+  el.parentNode.remove(); updateSensTotal();
+  addLog('管理员','主站管理员',`<b>敏感词库</b>移除词条「${w}」· 即刻全站生效`,'w'); toast('已移除 · 检测即刻生效'); }
+function updateSensTotal(){ const t=document.getElementById('sensTotal'); if(t)t.textContent=SENS_WORDS.length; }
+
+/* ============ 岗位角色管理 ============ */
+/* 三角色数据：成员名单 + 权限开关（演示环境可实时增删/改权限并联动日志与人数） */
+const ROLES_DATA={
+  editor:{nm:'编辑',cntSel:'cntEditor',prms:[['稿件新建/编辑',1],['提交审核',1],['发布上线',0],['栏目管理',0],['查看全站数据',0]],
+    members:[['王老师','教务处 · 2023年入职'],['刘敏','学生工作处 · 2024年入职'],['陈刚','财务处 · 2022年入职'],['赵雪','招生就业处 · 2025年入职']]},
+  audit:{nm:'部门审核',cntSel:'cntAudit',prms:[['本部门稿件初审/驳回',1],['本部门栏目管理',1],['发布上线',0],['跨部门数据查看',0],['敏感词库维护',0]],
+    members:[['李处长','部门审核 · 宣传部'],['周萍','教务处 · 教学秘书'],['吴涛','学生工作处 · 辅导员']]},
+  final:{nm:'终审发布',cntSel:'cntFinal',prms:[['全站终审',1],['触发静态化发布',1],['置顶/头条/下线',1],['高危操作二次确认',1],['修改审核流配置',0]],
+    members:[['张部长','党委宣传部 · 部长'],['孙校助','校长办公室 · 助理']]}
+};
+/* 成员管理：查看名单、调整岗位归属（加入/移出） */
+function openRoleMgr(key){ const r=ROLES_DATA[key]; if(!r)return;
+  const avaCols=['#2b6cf0','#e08a3a','#2f9a63','#8a5bc4','#d05a7e'];
+  const rows=r.members.map((m,i)=>`<div class="rmgRow"><div class="rmgAva" style="background:${avaCols[i%5]}">${m[0][0]}</div><div class="rmgInfo"><div class="n">${m[0]}</div><div class="d">${m[1]}</div></div><a style="font-size:11px;color:#e05252;cursor:pointer" onclick="removeRoleMember('${key}',${i})">移出</a></div>`).join('')
+    ||'<div style="text-align:center;color:#9db0cc;padding:18px;font-size:12px">暂无成员</div>';
+  openModal('👥',`成员管理 · ${r.nm}（${r.members.length} 人）`,
+    `<div style="max-height:230px;overflow-y:auto">${rows}</div>
+     <div style="display:flex;gap:8px;margin-top:12px">
+       <input id="rmgNewName" placeholder="新成员姓名，如：钱进" style="flex:1;height:32px;border:1.5px solid #e8eef7;border-radius:8px;padding:0 10px;font-size:12px;outline:none">
+       <button class="mbtn ok" style="height:32px;padding:0 14px;font-size:11.5px" onclick="addRoleMember('${key}')">＋ 添加</button>
+     </div>
+     <div style="font-size:10.5px;color:#9db0cc;margin-top:9px">移出成员不影响其历史操作记录（日志按人追溯）；${r.nm}权限随岗位自动授予/回收。</div>`,
+    '完成','blue',()=>{});
+}
+function addRoleMember(key){ const r=ROLES_DATA[key]; const inp=document.getElementById('rmgNewName'); if(!inp||!r)return;
+  const nm=inp.value.trim(); if(!nm){toast('请输入新成员姓名');return}
+  if(r.members.some(m=>m[0]===nm)){toast('该成员已在本岗位');return}
+  r.members.push([nm,'教务处 · 新加入']); inp.value='';
+  const cnt=document.getElementById(r.cntSel); if(cnt)cnt.textContent=r.members.length+'人';
+  document.querySelector('#mBody > div').innerHTML=r.members.map((m,i)=>`<div class="rmgRow"><div class="rmgAva" style="background:${['#2b6cf0','#e08a3a','#2f9a63','#8a5bc4','#d05a7e'][i%5]}">${m[0][0]}</div><div class="rmgInfo"><div class="n">${m[0]}</div><div class="d">${m[1]}</div></div><a style="font-size:11px;color:#e05252;cursor:pointer" onclick="removeRoleMember('${key}',${i})">移出</a></div>`).join('');
+  document.querySelector('.mh .mt').textContent=`成员管理 · ${r.nm}（${r.members.length} 人）`;
+  addLog('管理员','主站管理员',`<b>角色管理</b>「${r.nm}」新增成员 ${nm} · 权限随岗位自动授予`,'w');
+  toast(`${nm} 已加入「${r.nm}」· 人数已同步`); }
+function removeRoleMember(key,i){ const r=ROLES_DATA[key]; if(!r||!r.members[i])return;
+  const nm=r.members[i][0];
+  openModal('!','移出成员确认',`将 <b>${nm}</b> 移出「${r.nm}」岗位？<br><br>移出后其立即失去该岗位全部权限（发布/审核入口同步回收），历史操作记录保留可追溯。`,'确认移出','ok',()=>{
+    r.members.splice(i,1);
+    const cnt=document.getElementById(r.cntSel); if(cnt)cnt.textContent=r.members.length+'人';
+    openRoleMgr(key); // 重开弹层刷新名单
+    addLog('管理员','主站管理员',`<b>角色管理</b>${nm} 移出「${r.nm}」· 岗位权限已回收`,'d');
+    toast(`${nm} 已移出 · 权限已回收`); });}
+/* 权限配置：按角色调整权限开关 */
+function openRolePrm(key){ const r=ROLES_DATA[key]; if(!r)return;
+  const rows=r.prms.map((p,i)=>`<div class="prmRow"><div><div>${p[0]}</div><div class="d">${p[1]?'当前已开启 · 岗位可用':'当前已关闭 · 菜单与按钮同步隐藏'}</div></div><div class="sw ${p[1]?'on':''}" onclick="toggleRolePrm('${key}',${i},this)"></div></div>`).join('');
+  openModal('⚙',`权限配置 · ${r.nm}`,`${rows}<div style="font-size:10.5px;color:#9db0cc;margin-top:10px">权限变更<b>实时生效</b>：关闭「发布上线」后，该角色所有成员的发布按钮即刻隐藏；高危权限变更写入操作日志。</div>`,'完成','blue',()=>{});}
+function toggleRolePrm(key,i,el){ const r=ROLES_DATA[key]; if(!r||!r.prms[i])return;
+  r.prms[i][1]=r.prms[i][1]?0:1; el.classList.toggle('on');
+  addLog('管理员','主站管理员',`<b>权限变更</b>「${r.nm}」${r.prms[i][0]} → ${r.prms[i][1]?'开启':'关闭'}（实时生效）`,'d');
+  toast(`「${r.prms[i][0]}」已${r.prms[i][1]?'开启':'关闭'} · 对该角色全员实时生效`); }
+
+/* ============ 编辑器 ============ */
+function toggleSel(id){ selected.has(id)?selected.delete(id):selected.add(id); renderTable(); }
+function toggleAll(){ const kw=document.getElementById('kw').value.trim(); const vis=articles.filter(a=>!kw||a.title.includes(kw));
+  if(vis.every(a=>selected.has(a.id))) vis.forEach(a=>selected.delete(a.id)); else vis.forEach(a=>selected.add(a.id)); renderTable(); }
+function updateBatchBtns(){
+  const on=selected.size>0;
+  ['bExport','bOn','bOff','bDel'].forEach(id=>document.getElementById(id).disabled=!on);
+  document.getElementById('selInfo').textContent=on?`已选 ${selected.size} 项 · 高危操作需二次确认`:'未选中条目 · 高危操作需二次确认';
+}
+function moveRow(id,dir){ const i=articles.findIndex(a=>a.id===id); const j=i+dir; if(j<0||j>=articles.length){toast('已到边界');return}
+  [articles[i],articles[j]]=[articles[j],articles[i]]; addLog('管理员','主站管理员',`<b>调整排序</b>《${articles[j].title.slice(0,14)}…》${dir<0?'上移':'下移'}`,'i'); renderTable(); toast('排序已调整（⑩ 排序需求）'); }
+function doBatch(act){ openModal('!','批量'+act+'确认',`您即将对 <b>${selected.size} 篇稿件</b>执行「${act}」操作。<br>该操作将写入操作日志，是否继续？`,'确认'+act,'blue',()=>{
+  addLog('管理员','主站管理员',`<b>批量${act}</b> ${selected.size} 篇稿件（二次确认已通过）`, act==='删除'?'d':'w');
+  if(act==='删除'){ articles.filter(a=>selected.has(a.id)).forEach(a=>{a.delAt=now().slice(0,16);trash.unshift(a)}); articles=articles.filter(a=>!selected.has(a.id)); }
+  if(act==='禁用') articles.forEach(a=>{if(selected.has(a.id)){a.stt='off';a.sttName='已禁用'}});
+  if(act==='启用') articles.forEach(a=>{if(selected.has(a.id)){a.stt='pub';a.sttName='已发布'}});
+  selected.clear(); renderTable(); refreshKpi(); updateTrashCnt(); renderTrash(); toast(`批量${act}完成 · 已写入日志`); });}
+function askDelete(){ doBatch('删除'); }
+
+let trash=[];
+/* 编辑稿件：已发布稿修改即下线（防"带病改版"），需重新走审核流；草稿直接进编辑器 */
+function editArticle(id){ const a=articles.find(x=>x.id===id); if(!a)return;
+  if(a.stt!=='pub'){ toast('已打开编辑器（同新建稿件页）· 草稿修改后重新提交审核'); return; }
+  openModal('!','修改已发布稿件',`《${a.title.slice(0,24)}${a.title.length>24?'…':''}》已在前台展示。<br><br>修改即<b>前台同步摘除</b>（避免访客看到半成品），新版本需<b>重新走审核流</b>：部门初审 → 宣传部终审 → 通过后重新发布。`,'确认修改','blue',()=>{
+    a.stt='rev'; a.sttName='待审核';
+    const st=sites.find(s=>s.nm==='官网主站'); if(st&&st.arts>0){st.arts--; renderSites();}
+    auditQueue.unshift({id:Date.now(),title:a.title,cat:a.cat,node:'部门初审',who:a.who,wait:'刚刚',urg:false,reEdit:true});
+    refreshCanvasBlocks(); renderTable(); refreshAudit(); updateNavCounts();
+    addLog(a.who.split('·')[0].trim(),'编辑',`<b>修改</b>已发布稿《${a.title.slice(0,14)}…》· 前台已摘除旧版 · 重新提交审核`,'w');
+    toast('已摘除前台旧版 · 稿件进入审核队列'); goto('audit'); });}
+function askDeleteOne(id){ const a=articles.find(x=>x.id===id);
+  const delThumb = a.img ? `<div class="delThumb" style="background-image:url('${PDIR}${a.img}')"></div>` : `<div class="delThumb">📄</div>`;
+  openModal('!','删除确认',`
+    <div class="delDetail">
+      <div class="ddT">待删除内容（1 条）</div>
+      <div class="ddRow">${delThumb}
+        <div class="ddInfo">
+          <div class="ddTitle">${a.title.slice(0,30)}${a.title.length>30?'…':''}</div>
+          <div class="ddMeta">${a.cat} · ${a.who} · ${a.date==='—'?'草稿':a.date} · <span class="stt ${a.stt}">${a.sttName}</span></div>
+        </div>
+      </div>
+      <div class="ddNote">删除后移入<b>回收站</b>，30 天内可恢复；超过 30 天自动清除不可找回。</div>
+    </div>`,'确认删除','ok',()=>{
+  articles=articles.filter(x=>x.id!==id); selected.delete(id); a.delAt=now().slice(0,16); trash.unshift(a);
+  // 联动：已发布稿件被删 → 所属站点稿件数 -1（前台同步摘除）+ 画布区块重渲染
+  const st=sites.find(s=>s.nm==='官网主站');
+  if(a.stt==='pub'&&st&&st.arts>0){ st.arts--; renderSites(); }
+  refreshCanvasBlocks();
+  addLog('管理员','主站管理员',`<b>删除</b>稿件《${a.title.slice(0,14)}…》→ 已移入回收站${a.stt==='pub'?'（前台已同步摘除）':''}`,'d'); renderTable(); refreshKpi(); updateTrashCnt(); toast('已移入回收站 · 可在系统侧栏恢复'); });}
+function updateTrashCnt(){ const t=document.getElementById('trashCnt'); if(t)t.textContent=trash.length;
+  const k=document.getElementById('kpiTrash'); if(k)k.innerHTML=trash.length+'<i>篇</i>'; }
+function restoreTrash(id){ const i=trash.findIndex(x=>x.id===id); if(i<0)return;
+  const a=trash[i];
+  articles.push(trash.splice(i,1)[0]);
+  // 联动：恢复后重置为草稿（需重新走审核流才能再发布）· 站点稿件数不回补（草稿不在前台）
+  a.stt='drf'; a.sttName='草稿';
+  addLog('管理员','主站管理员',`<b>恢复</b>稿件《${a.title.slice(0,14)}…》至草稿箱（状态重置为草稿 · 需重新审核）`,'i'); renderTrash(); renderTable(); updateTrashCnt(); toast('已恢复至草稿箱 · 状态重置为草稿，需重新审核后发布'); }
+function renderTrash(){ const tb=document.getElementById('trashBody'); if(!tb)return;
+  tb.innerHTML=trash.map(a=>`<tr>
+    <td><div class="ttc"><div class="a">${a.title}</div></div></td>
+    <td><span class="stt ${a.stt==='pub'?'pub':'drf'}">${a.sttName}</span></td>
+    <td style="color:#9db0cc">${a.delAt||now().slice(0,16)}</td>
+    <td class="op"><a onclick="restoreTrash(${a.id})">↩ 恢复</a><a class="d" onclick="toast('演示：彻底清除需二次确认，30天后自动清除')">彻底删除</a></td></tr>`).join('')
+    ||'<tr><td colspan="4" style="text-align:center;color:#9db0cc;padding:26px">回收站为空 · 删除的稿件将出现在这里</td></tr>';
+  document.getElementById('trashN').textContent=trash.length; }
+function doExport(){ addLog('管理员','主站管理员',`<b>批量导出</b> ${selected.size} 篇稿件为 Excel`,'i'); toast(`已导出 ${selected.size} 篇 · 演示环境不生成文件`); }
+function refreshKpi(){ const off=articles.filter(a=>a.stt==='off').length; document.getElementById('kpiOff').innerHTML=off+'<i>篇</i>'; }
+
+/* ============ 编辑器 ============ */
+const doc=document.getElementById('doc');
+function countWords(){ const t=doc.innerText.replace(/\s/g,''); document.getElementById('wc').textContent=t.length;
+  const hit=SENS_WORDS.filter(w=>t.includes(w)); const r=document.getElementById('sensResult');
+  r.textContent=hit.length?`⚠ 敏感词检测：命中「${hit.join('」「')}」`:'敏感词检测：通过';
+  r.style.color=hit.length?'var(--dan)':'var(--ok)'; }
+doc.addEventListener('input',()=>{ countWords(); document.getElementById('edState').textContent='草稿 · 编辑中'; });
+countWords();
+function fmt(cmd){ document.execCommand(cmd); doc.focus(); }
+function importFile(type){ addLog('管理员','主站管理员',`<b>导入</b> ${type} 文件（自动规范排版）`,'i');
+  if(type==='Word'||type==='PDF'){ doc.insertAdjacentHTML('beforeend','<p>（此处为 '+type+' 导入内容，已自动统一行距、字体、缩进与对齐）</p>'); }
+  if(type==='图片'){ doc.insertAdjacentHTML('beforeend','<div class="imgbox real" style="background-image:url(\''+PDIR+'20260904084742_25_88_w1600.jpg\')"></div><div class="cap photocap">▲ 校园实景（素材包图4 · 从素材库选取 · 自动居中）</div>'); }
+  if(type==='视频'){ doc.insertAdjacentHTML('beforeend','<div class="imgbox">▶（视频占位 · 居中播放 · 主流格式兼容）</div>'); }
+  if(type==='Excel'){ doc.insertAdjacentHTML('beforeend','<p>（Excel 表格内容已转换为规范表格排版）</p>'); }
+  countWords(); toast(type+' 导入成功 · 排版已规范化'); }
+function saveDraft(){ document.getElementById('edState').textContent='草稿 · 已保存 '+now().slice(11,16); addLog('管理员','主站管理员','<b>保存</b>稿件草稿','i'); toast('草稿已保存'); }
+function submitAudit(){
+  const t=doc.innerText.replace(/\s/g,''); const hit=SENS_WORDS.filter(w=>t.includes(w));
+  if(hit.length){ openModal('!','敏感词拦截',`正文命中敏感词：<b>「${hit.join('」「')}」</b><br>请修改后再提交审核。`,'知道了','cancel',()=>{}); return; }
+  openModal('✓','提交审核',`稿件将进入多级审核流（部门初审 → 敏感词复审 → 终审）。<br>排版规范化 <b>4 项已通过</b>，发布日期：<b>${document.querySelector('#pg-edit input[type=date]').value}</b>。`,'确认提交','blue',()=>{
+    document.getElementById('edState').textContent='已提交 · 待审核';
+    auditQueue.unshift({id:Date.now(),title:document.getElementById('edTitle').textContent,cat:'通知公告',node:'部门初审',who:'教务处 · 王老师',wait:'刚刚',urg:false});
+    addLog('王老师','教务处','<b>提交</b>稿件进入审核流（排版规范化通过）','i'); refreshAudit(); updateNavCounts(); toast('已提交审核 · 流程见「审核中心」'); goto('audit'); });}
+
+/* ============ 称谓选择 ============ */
+document.getElementById('depts').addEventListener('click',e=>{ if(e.target.tagName!=='SPAN')return;
+  e.currentTarget.querySelectorAll('span').forEach(s=>s.classList.remove('on')); e.target.classList.add('on'); toast('供稿部门：'+e.target.textContent+'（标准称谓库）'); });
+
+/* ============ 审核中心 ============ */
+function refreshAudit(){ const tb=document.getElementById('auditBody');
+  tb.innerHTML=auditQueue.map(a=>`<tr>
+    <td><div class="ttc"><div class="a">${a.urg?'<span style="display:inline-block;width:6px;height:6px;border-radius:3px;background:#c0392b;margin-right:6px"></span>':''}${a.title}</div></div></td>
+    <td>${a.cat}</td><td><span class="stt rev">${a.node}</span></td><td>${a.who}</td><td style="${a.urg?'color:#c0392b;font-weight:700':''}">${a.wait}</td>
+    <td class="op"><button class="b pass" onclick="passAudit(${a.id})">通过</button><button class="b back" onclick="rejectAudit(${a.id})">驳回</button><button class="b view" onclick="toast('演示：查看稿件全文与排版检查报告')">查看</button></td></tr>`).join('')
+    ||'<tr><td colspan="6" style="text-align:center;color:#9db0cc;padding:26px">🎉 全部处理完毕，无待审稿件</td></tr>';
+  document.getElementById('auditCnt').textContent=auditQueue.length; updateNavCounts(); }
+function passAudit(id){ const a=auditQueue.find(x=>x.id===id); const isFinal=a.node==='宣传部终审';
+  openModal('✓','通过确认',`确认<b>通过</b>《${a.title.slice(0,20)}…》？<br>通过后自动进入下一环节（终审通过将触发静态化发布）。`,'确认通过','blue',()=>{
+  auditQueue=auditQueue.filter(x=>x.id!==id);
+  addLog('管理员',isFinal?'宣传部终审':'部门审核',`<b>通过</b>《${a.title.slice(0,14)}…》${isFinal?'（终审通过 · 触发发布）':'并流转下一环节'}`,'i');
+  if(!isFinal){ // 初审通过 → 流转到终审环节，仍留在审核队列
+    a.node='宣传部终审'; auditQueue.push(a); refreshAudit(); toast('初审通过 · 已流转至宣传部终审'); return; }
+  if(flowStep<4) advanceFlow(); refreshAudit(); toast('终审已通过 · 流程推进 · 日志已记录');
+  // 终审通过 → 静态化发布页自动出现该稿件所属站点的发布任务
+  if(flowStep>=4){ pendingPubTitle=a.title; setTimeout(()=>{ goto('pub'); renderFlowBanners(); },600); } });}
+function rejectAudit(id){ const a=auditQueue.find(x=>x.id===id); openModal('!','驳回确认',`驳回《${a.title.slice(0,20)}…》将退回提交人修改。<br>驳回意见：<input id="rjReason" style="width:100%;height:32px;border:1.5px solid #e8eef7;border-radius:8px;padding:0 10px;margin-top:8px" placeholder="请填写驳回理由（必填）">`,'确认驳回','ok',()=>{
+  const r=document.getElementById('rjReason').value.trim(); if(!r){toast('请填写驳回理由');return}
+  auditQueue=auditQueue.filter(x=>x.id!==id);
+  // 联动：驳回稿回到稿件管理并重置为草稿（提交人修改后重新提交）
+  const art=articles.find(x=>x.title===a.title); if(art){art.stt='drf';art.sttName='草稿';}
+  addLog('管理员','宣传部终审',`<b>驳回</b>《${a.title.slice(0,14)}…》理由：${r}`,'w'); refreshAudit(); renderTable(); updateNavCounts(); toast('已驳回 · 稿件退回草稿箱 · 已通知提交人'); });}
+function advanceFlow(){ flowStep=Math.min(flowStep+1,4);
+  for(let i=0;i<5;i++){ const n=document.getElementById('fn'+i),l=document.getElementById('fl'+i);
+    n.className='c '+(i<flowStep?'done':i===flowStep?'cur':'wait'); if(i===4&&flowStep===4)n.textContent='✓'; if(i===3&&flowStep===3)n.textContent='3';
+    if(i<4)l.className='fline '+(i<flowStep-1?'ok':''); }
+  document.getElementById('flowName').textContent = flowStep===4?'终审已通过 → 静态化发布中…':'官网主站 · 通知公告栏目';
+  if(flowStep===4){ document.getElementById('fn4').className='c done'; document.getElementById('fn4').textContent='✓';
+    document.getElementById('fl3').className='fline ok'; toast('静态化发布任务已触发 · 页面即将更新'); addLog('系统','自动','<b>静态化</b>发布任务已生成（Nginx 推送）','i'); } }
+function updateNavCounts(){ document.getElementById('navAudit').textContent=auditQueue.length;
+  document.getElementById('todoCnt').textContent=auditQueue.length+12; document.getElementById('kpiAudit').innerHTML=auditQueue.length+'<i>篇</i>'; }
+
+/* 初始化 */
+renderTable(); refreshAudit(); updateNavCounts(); renderSites(); initCompDrag(); renderTrash();
+
+/* ============ 自动演示引擎 ============ */
+const AUTO_FLAG='zqAutoDemo';
+const dCursor=document.createElement('div');dCursor.id='demoCursor';document.body.appendChild(dCursor);
+const dBar=document.createElement('div');dBar.id='demoBar';dBar.innerHTML='<span class="idx" id="dIdx">▶</span><span class="txt" id="dSay">准备开始…</span>';document.body.appendChild(dBar);
+const dCtl=document.createElement('div');dCtl.id='demoCtl';
+dCtl.innerHTML='<button id="dPlay" title="播放/暂停">▶</button><button id="dSkip" title="跳过本步">⏭</button><button id="dLoop" title="循环播放">🔁</button><button id="dVoice" title="语音解说开关">🔊</button><button id="dExit" title="退出自动演示">✕</button>';
+document.body.appendChild(dCtl);
+document.getElementById('dLoop').classList.toggle('loopon',sessionStorage.getItem(AUTO_FLAG+'Loop')==='1');
+
+/* ===== 语音解说（浏览器原生中文合成，无需音频文件）===== */
+const VS={on:sessionStorage.getItem(AUTO_FLAG+'Voice')!=='0'};
+const dVoiceBtn=document.getElementById('dVoice');
+dVoiceBtn.textContent=VS.on?'🔊':'🔇';
+dVoiceBtn.onclick=function(){
+  VS.on=!VS.on;this.textContent=VS.on?'🔊':'🔇';
+  sessionStorage.setItem(AUTO_FLAG+'Voice',VS.on?'1':'0');
+  if(!VS.on){try{speechSynthesis.cancel();}catch(e){}}
+  else{ speak('语音解说已开启'); }
+  toast(VS.on?'语音解说：已开启':'语音解说：已关闭');
+};
+try{speechSynthesis.getVoices();speechSynthesis.onvoiceschanged=()=>speechSynthesis.getVoices();}catch(e){}
+function speakStop(){VS.busy=false;VS.queued=false;try{speechSynthesis.cancel();}catch(e){}}
+let speakTimer=null;
+function speak(txt){
+  if(!VS.on||!('speechSynthesis' in window))return;
+  speakStop();
+  VS.queued=true; // 预约即置位，覆盖 60ms 排队窗口，避免 wait 误判"已念完"
+  // 关键：cancel() 后立刻 speak() 会被 Chrome 引擎静默丢弃，延迟 60ms 再播
+  if(speakTimer)clearTimeout(speakTimer);
+  speakTimer=setTimeout(()=>{
+    try{
+      // 去掉 emoji 与装饰符号，只留可读文本
+      const clean=txt.replace(/[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u{2B00}-\u{2BFF}\u{FE0F}\u{2190}-\u{21FF}]/gu,'').replace(/→|·|——/g,'，');
+      const u=new SpeechSynthesisUtterance(clean);
+      u.lang='zh-CN';u.rate=1.15;u.pitch=1;u.volume=1;
+      const v=speechSynthesis.getVoices().find(v=>/^zh|Chinese|中文/i.test(v.lang+' '+v.name));
+      if(v)u.voice=v;
+      speechSynthesis.speak(u);
+      VS.queued=false;  // 已交给引擎，后续由 speechSynthesis 状态接管（不依赖 onend 回调）
+    }catch(e){VS.queued=false}
+  },60);
+}
+/* 音画对齐：任何一步等待都会等当前解说念完再走，避免"上一句没念完就被下一句打断" */
+function speechBusy(){return !!VS.queued||speechSynthesis.speaking||speechSynthesis.pending;}
+
+const D={paused:false,skip:false,running:false};
+function wait(ms){return new Promise(res=>{
+  const canExt = VS.on && ('speechSynthesis' in window);
+  // 任何等待都等当前解说念完再走；封顶 12s 防引擎卡死
+  const cap = 12000;
+  const end=performance.now()+ms;
+  (function tick(){
+    if(D.skip){D.skip=false;res();return}
+    if(D.paused){setTimeout(tick,120);return}
+    const now=performance.now();
+    if(now>=end){
+      if(canExt && speechBusy() && now-end<cap){setTimeout(tick,100);return}
+      res();return;
+    }
+    setTimeout(tick,Math.min(90,end-now)); })();});}
+function say(i,txt){document.getElementById('dIdx').textContent=i;document.getElementById('dSay').textContent=txt;speak(txt);}
+function dHl(el,on){if(typeof el==='string')el=document.querySelector(el);if(!el)return;el.classList.toggle('demo-hl',on!==false);}
+function dClear(){document.querySelectorAll('.demo-hl').forEach(e=>e.classList.remove('demo-hl'));}
+async function dMove(el){if(typeof el==='string')el=document.querySelector(el);if(!el)return;
+  el.scrollIntoView({block:'center'});await wait(180);
+  const r=el.getBoundingClientRect();
+  dCursor.style.transform=`translate(${r.left+r.width/2-8}px,${r.top+r.height/2-4}px)`;
+  await wait(430);}
+function setPlayBtn(){document.getElementById('dPlay').textContent=D.paused?'▶':'⏸';}
+function setStartBtn(){const b=document.getElementById('dStart');if(b){b.textContent=D.running?'演示中…':'▶ 自动演示';b.disabled=D.running;}}
+
+async function runDemo(){
+  if(D.running)return;D.running=true;setPlayBtn();setStartBtn();
+  dBar.classList.add('on');
+  /* ========= 序幕 ========= */
+  say(1,'演示场景：宣传专员接到任务，为学校官网发布一篇校园新闻。');
+  await dMove('.slogo');dHl('.slogo');await wait(1800);dClear();
+
+  /* ========= 第一幕：管理员建站（为什么有平台可用） ========= */
+  say(2,'第一部分，站点建设。管理员在站点管理中统一创建与查看全校站点。');
+  goto('site');await wait(600);
+  await dMove('.sitegrid');dHl('.sitegrid');await wait(1600);dClear();
+
+  say(3,'通过三步向导新建站点：填写名称与域名，选择模板，授权管理员。');
+  await dMove('.sitecard.addnew');dHl('.sitecard.addnew');await wait(400);
+  openWiz();await wait(1100);dClear();
+  document.getElementById('wzNm').value='工商管理学院';await wait(350);
+  document.getElementById('wzUrl').value='gs.dfxy.edu.cn';await wait(550);
+  await dMove('#mOk');await wait(300);document.getElementById('mOk').click();await wait(850);
+  say('…','第二步，选择模板：本站选用学术雅致绿模板。');await wait(400);
+  wzTpl(document.querySelector('#wizBox .dept span:nth-child(2)'),'学术绿');await wait(900);
+  await dMove('#mOk');await wait(300);document.getElementById('mOk').click();await wait(850);
+  say('…','第三步，授权：指定站点管理员，编辑权限按岗位分配。');await wait(600);
+  await dMove('#mOk');await wait(350);confirmAction();await wait(1200);
+
+  say(4,'站点依靠模板快速成型：模板库内置科技蓝与学术绿两套官网风格，即插即换。');
+  say('…','建站时系统按模板自动生成栏目树，包括东方要闻、通知公告、招生专栏等。后续页面内容均来自这些栏目。');
+  goto('tpl');await wait(500);
+  await dMove('.tplgrid .tplcard:first-child .thumb');dHl('.tplgrid .tplcard:first-child');await wait(1000);dClear();
+  await dMove('.tplgrid .tplcard:nth-child(2) .thumb');dHl('.tplgrid .tplcard:nth-child(2)');await wait(1000);dClear();
+  say('…','二十三类组件可拖入画布，实时生成页面区块。下面现场搭建一个首页。');
+  await dMove('.comprow');dHl('.comprow');await wait(1200);dClear();
+  // 完整搭建过程：每块 = 拖入 → 弹配置框 → 点选布局 → 点选内容来源 → 确认 → 区块渲染出所选
+  const buildSeq=[
+    {nm:'轮播图',   ci:0, fi:2, say1:'第一步，放置组件：首页先放置大图轮播，点击组件弹出配置框。',
+      saySrc:'内容来源选择素材库：校方提供的十一张校园实景图片已入库，同时支持本地上传。',
+      say2:'第二步，选择布局：两个候选方案，点选全宽大图。', say3:'第三步，选择内容：素材库中的图片可直接预览。本次演示本地上传，上传一张运动会照片。', say4:'第四步，点击本地上传，选择校运动会照片，上传完成。', sayFx:'效果：首图轮播立即换为刚上传的照片，上传即可使用，无需等待入库。', sayLink:'联动说明：上传的图片自动进入素材库，与后续写稿使用同一套素材。', srcPage:'list', srcSel:'#tbody tr:first-child .rthumb', sayVisit:'下面到素材库实地查看：稿件配图与刚上传的图片都在这套素材中。'},
+    {nm:'要闻列表', ci:0, fi:0, say1:'继续放置要闻列表组件，同样弹出配置框。',
+      saySrc:'内容来源选择栏目树：建站时已按模板自动生成东方要闻、通知公告等栏目，无需手动创建。',
+      say2:'选择布局：大图头条加四条摘要。', say3:'选择内容：在下拉列表中选择东方要闻栏目进行绑定。', say4:'确认后区块生成。', sayFx:'效果：列表已带出东方要闻栏目现有的稿件标题与日期。', sayLink:'联动说明：稿件发布到东方要闻栏目后，此处自动更新，内容跟随栏目。', srcPage:'list', srcSel:'#tbody', sayVisit:'下面到稿件管理实地查看：区块带出的正是东方要闻栏目下的真实稿件。'},
+    {nm:'通知公告', ci:0, fi:0, say1:'再放置通知公告组件。',
+      saySrc:'内容来源同样选择栏目树，直接点选即可。',
+      say2:'选择布局：标题加日期列表。', say3:'选择内容源：绑定本站通知公告栏目。', say4:'确认后区块生成。', sayFx:'效果：公告标题与日期已列出，均为本站真实数据。', sayLink:'联动说明：任何部门向通知公告栏目发稿，此处自动更新，无需修改页面。', srcPage:'list', srcSel:'#tbody tr:nth-child(2)', sayVisit:'通知公告栏目的数据源，在稿件管理中统一维护。'},
+    {nm:'数字展示', ci:0, fi:0, say1:'放置数字展示组件。',
+      saySrc:'内容来源选择办学数据：即学校在系统设置中统一录入的指标，全校页面共用一份数据。',
+      say2:'选择布局：四项指标横排。', say3:'选择内容：办学数据。', say4:'确认后区块生成。', sayFx:'效果：四个指标卡渲染完成，包括在校生、专业数、教职工与实验室数量。', sayLink:'联动说明：数据统一维护，修改一处，全站更新。', srcPage:null, sayVisit:null},
+    {nm:'视频专区', ci:1, fi:0, say1:'再放置视频专区组件，视频同样可以进入画布。',
+      saySrc:'内容来源选择视频资源库：支持上传视频文件，也支持外链视频平台，宣传片已入库。',
+      say2:'选择布局：大播放器。', say3:'选择内容：校宣传片东方之约。', say4:'确认后区块生成。', sayFx:'效果：视频卡片渲染完成，点击画面即可播放，再次点击暂停。', sayLink:'联动说明：上传与外链视频统一入库管理；前台预览可查看大播放器效果，稿件、视频、图集共用同一预览体系。', srcPage:null, sayVisit:null},
+    {nm:'友情链接', ci:0, fi:0, say1:'放置友情链接组件，相关数据来自预先建好的链接库。',
+      saySrc:'内容来源选择链接库：即调研表常用链接中的山东财金集团、山东财经大学、山东教育厅、学信网与山东省人社厅，五条已预置。',
+      say2:'选择布局：图标墙。', say3:'选择内容：常用链接五条，按调研表勾选情况启用。', say4:'确认后区块生成。', sayFx:'效果：五条常用链接渲染完成，均为调研表中校方指定的入口。', sayLink:'联动说明：五条链接在友情链接管理中统一维护，改名、排序、启停自动同步。', srcPage:null, sayVisit:null},
+    {nm:'二维码', ci:0, fi:0, say1:'再放置二维码组件，对应调研表对官方新媒体入口的要求。',
+      saySrc:'内容来源选择新媒体账号管理：官方微信、抖音、微博二维码统一维护，更换无需修改页面。',
+      say2:'选择布局：三码横排。', say3:'选择内容：官方微信、抖音、微博三码。', say4:'确认后区块生成。', sayFx:'效果：三枚二维码并排展示，对应调研表版面设计需求第五条。', sayLink:'联动说明：二维码后台统一管理，更换账号只需修改后台，前台自动更新。', srcPage:null, sayVisit:null}
+  ];
+  const zone=document.getElementById('canvasZone');
+  for(const it of buildSeq){
+    const compEl=[...document.querySelectorAll('#compRow .comp')].find(c=>c.textContent.includes(it.nm));
+    if(!compEl)continue;
+    say('…',it.say1);
+    await dMove(compEl);dHl(compEl);await wait(500);
+    openCvPick(it.nm);await wait(700);
+    const mask=document.getElementById('cvPickMask');
+    if(mask.classList.contains('on')){
+      // 选布局
+      say('…',it.say2);
+      const layEl=mask.querySelector('#cpLayouts .cpOpt[data-i="'+it.ci+'"]');
+      await dMove(layEl);await wait(300);layEl.click();await wait(600);
+      // 选内容：先讲来源出处（联动起点），再点选项
+      say('…',it.saySrc);
+      const srcTag=mask.querySelector('#cpSrcTag');
+      if(srcTag){await dMove(srcTag);dHl(srcTag);await wait(1500);dClear();}
+      say('…',it.say3);
+      const conEl=mask.querySelector('#cpContents .cpOpt[data-i="'+it.fi+'"]');
+      await dMove(conEl);await wait(300);conEl.click();await wait(500);
+      if(it.fi===2){ // 上传分支：模拟上传进度
+        say('…','正在上传校运动会照片，上传完成。真实系统中，此处为本机文件选择框。');
+        await wait(1600); }
+      // 确认
+      say('…',it.say4);
+      await dMove('#cpOk');await wait(350);
+      document.getElementById('cpOk').click();await wait(800);
+    }else{
+      addToCanvas(it.nm);await wait(600);
+    }
+    const lastBlk=zone.querySelectorAll('.cvBlock');
+    const blk=lastBlk[lastBlk.length-1];
+    if(blk){
+      blk.scrollIntoView({block:'center'});
+      say('…',it.sayFx);
+      const body=blk.querySelector('.cvbody');
+      if(body){body.classList.add('demo-hl');body.scrollIntoView({block:'center'});}
+      await wait(1900);
+      say('…',it.sayLink);
+      const srcRow=blk.querySelector('.cvsrc');
+      if(srcRow){srcRow.classList.add('demo-hl');}
+      await wait(1600);
+      // 组件实操演示：数字改值 / 链接启停 / 视频点播
+      if(it.nm==='数字展示'){
+        say('…','指标数据并非固定：来自系统设置中的办学数据，仅系统管理员可修改，前台访客只读。');
+        const nb=blk.querySelector('.cvNums > div:first-child b');
+        if(nb){nb.scrollIntoView({block:'center'});await dMove(nb);dHl('.cvNums > div:first-child');await wait(500);
+          say('…','权限校验：当前登录为管理员身份，对应调研表岗位权限要求。编辑等其他角色无法进入编辑状态。');
+          // 模拟编辑过程：光标进入 → 全选旧值 → 逐字输入新值
+          nb.classList.add('editing');
+          say('…','进入编辑状态，正在输入新的指标数值。');
+          nb.textContent='';await wait(400);
+          for(const ch of '13,200'){ nb.textContent+=ch; await wait(160); }
+          nb.classList.remove('editing');
+          addLog('管理员','系统管理员','<b>修改</b>办学指标「在校生」→ 13,200（权限校验通过 · 已留痕）','w');
+          toast('管理员权限校验通过 · 指标已更新并留痕 · 全站同步');
+          await wait(900);dClear();
+          say('…','合规保障：只有管理员岗位可以修改，改动写入操作日志全程留痕，访客端始终只读。数据修改可追溯、可追责。');
+          await wait(1600);dClear();
+          say('…','修改即生效：在校生指标已更新，发布后官网同步，全校页面共用同一份数据。');
+          await wait(1600);}
+      }
+      if(it.nm==='视频专区'){
+        say('…','现场点播：点击画面，视频开始播放。');
+        const vd=blk.querySelector('.cvVideo');
+        if(vd){await dMove(vd);dHl('.cvVideo');await wait(400);
+          vd.click();await wait(2200);
+          say('…','再次点击暂停：播放暂停即时响应，搭建完成即可验证效果。');
+          vd.click();await wait(900);dClear();
+          await wait(900);}
+      }
+      if(it.nm==='友情链接'){
+        say('…','链接支持启停：这五条即调研表常用链接，下面临时停用学信网。');
+        const lk=blk.querySelector('.cvLinks span[data-i="3"]');
+        if(lk){await dMove(lk);dHl('.cvLinks');await wait(400);
+          lk.classList.remove('on');lk.classList.add('off');
+          addLog('管理员','主站管理员','<b>停用</b>友情链接「学信网」','w');
+          await wait(1200);dClear();
+          say('…','停用后官网同步隐藏。管理入口支持新增、改名与排序，链接库统一维护，前台即选即用。');
+          await wait(1800);}
+      }
+      // 实地回访：跳到来源模块，把真实数据指给汇报对象看
+      if(it.srcPage&&it.srcSel){
+        say('…',it.sayVisit);
+        goto(it.srcPage);await wait(600);
+        await dMove(it.srcSel);dHl(it.srcSel);await wait(2000);
+        say('…','画布区块显示的，正是此处维护的数据。');await wait(1400);
+        goto('tpl');await wait(500);
+        if(blk){blk.scrollIntoView({block:'center'});dHl(blk);await wait(900);}
+      }
+    }
+    dClear();
+  }
+  say('…','整个搭建过程共七个组件，每个组件选择布局与内容并逐步确认。画布从空白到完整首页，全程可见。');
+  say('…','技术要点：布局自由排布；内容绑定栏目后自动更新；素材通过预先建库即选即用。全程无需编写代码。');
+  await dMove('#canvasZone');dHl('#canvasZone');await wait(2000);dClear();
+
+  /* ========= 组合预览：画布区块拼成整页前台效果 ========= */
+  say('…','组件搭建完成后，点击组合预览，一键查看整页效果。');
+  const pvBtn=[...document.querySelectorAll('#pg-tpl .more')].find(e=>e.textContent.includes('组合预览'));
+  if(pvBtn){ await dMove(pvBtn);dHl(pvBtn);await wait(400);
+    openCvPv();await wait(1200);dClear();
+    const cbPage=document.getElementById('cbPvPage');
+    if(cbPage){ cbPage.scrollTop=0;
+      say('…','这是组件组合的前台效果：导航、轮播、要闻公告、数字展示、视频、友情链接与二维码，按画布顺序拼装为完整首页。');
+      for(let s=0;s<3;s++){ cbPage.scrollBy({top:160,behavior:'smooth'}); await wait(900); }
+      cbPage.scrollTop=0; await wait(600); }
+    dHl('#cbPvBox');
+    say('…','需求落地对照：友情链接对应调研表常用链接，二维码对应新媒体矩阵要求，视频区对应多媒体播放要求，通知公告标题全展示参考对标院校。');
+    await wait(2600);dClear();
+    closeCvPv();await wait(400); }
+
+  /* ========= 第二幕：小王写稿（素材11张贯穿） ========= */
+  say(5,'第二部分，内容创作。宣传专员登录写稿，素材包十一张校园实景已入库。首页东方要闻区块绑定的正是该栏目，稿件审核发布后将自动出现在官网首页。');
+  goto('list');await wait(500);
+  await dMove('#tbody');dHl('#tbody .rthumb');await wait(1600);dClear();
+  say('…','点击缩略图，可放大查看素材原图。');
+  await dMove('#tbody tr:first-child .rthumb');await wait(400);
+  openLB(articles[0].img,'稿件配图 · 素材包实拍');await wait(1500);
+  document.getElementById('lbMask').classList.remove('on');await wait(400);dClear();
+
+  say(6,'新建稿件：Word 一键导入，排版自动规范。');
+  goto('edit');await wait(500);
+  await dMove('.imp span:first-child');dHl('.imp span:first-child');importFile('Word');await wait(1300);dClear();
+
+  say(7,'配图环节：从素材库插入校园实景照片。');
+  await dMove('.fb:nth-of-type(9)');importFile('图片');await wait(300);
+  const realImg=doc.querySelector('.imgbox.real');
+  if(realImg){realImg.scrollIntoView({block:'center'});}
+  await dMove('.doc .imgbox.real');dHl('.doc .imgbox.real');await wait(1600);dClear();
+
+  say(8,'继续编辑补充段落，字数与保存状态实时更新。');
+  doc.insertAdjacentHTML('beforeend','<p>三、工作要求：各单位要高度重视本次检查工作，认真组织自查，如实填写检查表格，确保检查工作取得实效。</p>');countWords();
+  document.getElementById('edState').textContent='草稿 · 编辑中';
+  await dMove('.doc p:last-of-type');dHl('.doc p:last-of-type');await wait(1400);dClear();
+  say('…','保存草稿，全程留痕，每一步操作均记录到工作台日志。');
+  const svBtn=document.querySelector('.submit .sbtn:first-child');
+  if(svBtn){await dMove(svBtn);dHl(svBtn);svBtn.click();await wait(900);
+    const okM=document.getElementById('mask');
+    if(okM&&okM.classList.contains('on')){await dMove('#mOk');await wait(300);confirmAction();await wait(600);}}
+  goto('audit');await wait(450);
+  const logC=document.getElementById('logCard');
+  if(logC){logC.scrollIntoView({block:'center'});dHl('#logCard');
+    const fl=document.querySelector('#logList .logrow');
+    if(fl){fl.classList.add('demo-hl');await dMove(fl);}
+    await wait(1600);}
+  dClear();
+
+  say(9,'完成编辑后先预览：所见即所得，提前查看发布效果。');
+  await dMove('.submit .sbtn:nth-child(2)');dHl('.submit .sbtn:nth-child(2)');await wait(400);
+  previewFromEditor();await wait(1200);dClear();
+  await dMove('#pvTitle');dHl('#pvTitle');await wait(800);dClear();
+
+  say(10,'预览中查看视频：宣传片大播放器，与画布视频专区使用同一视频。');
+  const pvVd=document.getElementById('pvVideo');
+  if(pvVd){ pvVd.scrollIntoView({block:'center'}); await wait(500);
+    dHl('#pvVideo');await dMove(pvVd);await wait(400);
+    pvVd.click();await wait(2400);
+    say('…','点击暂停：视频在画布区块与前台预览中均可播放，效果一致。');
+    pvVd.click();await wait(800);dClear(); }
+  say(11,'预览底部为素材包图集一览，点击可放大查看。');
+  const gal=document.getElementById('pvGal');
+  if(gal){ gal.scrollIntoView({block:'center'}); await wait(600);
+    dHl('#pvGal');await wait(1000);
+    const items=gal.querySelectorAll('.gitem');
+    for(const idx of [1,6,11]){ const it=items[idx-1]; if(!it)continue;
+      dCursor.style.transform=`translate(${it.getBoundingClientRect().left+30}px,${it.getBoundingClientRect().top+30}px)`; await wait(350);
+      it.click(); await wait(1100);
+      document.getElementById('lbMask').classList.remove('on'); await wait(250); }
+    dClear(); }
+  closePreview();await wait(350);
+
+  say(12,'同一篇稿件，双风格一键切换。');
+  await dMove('.submit .sbtn:nth-child(2)');await wait(300);
+  previewFromEditor();await wait(1000);
+  await dMove('.pvSw b[data-t=g]');dHl('.pvSw b[data-t=g]');await wait(300);pvTheme('g');await wait(1400);
+  await dMove('.pvSw b[data-t=b]');pvTheme('b');await wait(1200);dClear();closePreview();await wait(350);
+
+  /* ========= 第三幕：提交与审核 ========= */
+  say(13,'第三部分，提交审核。正文包含敏感词，系统实时标红提示。');
+  doc.insertAdjacentHTML('beforeend','<p>温馨提示：如需加急办理校园业务，请勿轻信内部渠道信息。</p>');countWords();
+  await dMove('#sensResult');dHl('#sensResult');await wait(1500);
+  submitAudit();await wait(1300);await dMove('#mOk');await wait(350);dClear();closeModal();await wait(300);
+  const sp=doc.querySelector('p:last-of-type');if(sp&&sp.textContent.includes('内部渠道')){sp.remove();}countWords();await wait(250);
+
+  say(14,'清除敏感词后提交成功，进入多级审核流程。');
+  submitAudit();await wait(1300);await dMove('#mOk');await wait(350);confirmAction();await wait(900);
+
+  say(15,'审核中心：部门初审、敏感词复审、宣传部终审，五个环节可视化流转。');
+  await dMove('.flow');dHl('.flow');await wait(1400);dClear();
+
+  say(16,'终审通过后，自动触发静态化发布。');
+  const first=auditQueue[0];if(first){passAudit(first.id);await wait(1300);await dMove('#mOk');await wait(350);confirmAction();await wait(1100);}
+  dHl('#fn4');await dMove('#fn4');await wait(1400);dClear();
+
+  say(17,'不合格的稿件将被驳回并填写理由，退回修改。');
+  const second=auditQueue[0];
+  if(second){rejectAudit(second.id);await wait(1200);
+    const rj=document.getElementById('rjReason');if(rj)rj.value='配图不清晰，请更换高清图后重新提交';
+    await dMove('#mOk');await wait(350);confirmAction();await wait(850);}
+
+  /* ========= 第四幕：管理员的日常运维 ========= */
+  say(18,'第四部分，日常运维。稿件支持鼠标拖拽调整顺序。');
+  goto('list');await wait(500);
+  const rows=()=>document.querySelectorAll('#tbody tr');
+  const ghost=document.getElementById('dragGhost'),ghostTx=document.getElementById('dragGhostTx');
+  const dragSim=async(from,to)=>{ const rs=rows(); if(!rs[from]||!rs[to])return;
+    const title=rs[from].querySelector('.ttc .a').textContent;
+    ghostTx.textContent=title.slice(0,26); ghost.style.display='block';
+    const r1=rs[from].getBoundingClientRect(),r2=rs[to].getBoundingClientRect();
+    rs[from].classList.add('dragging');
+    dCursor.style.transform=`translate(${r1.left+r1.width/2-8}px,${r1.top+r1.height/2-4}px)`;await wait(450);
+    ghost.style.transform=`translate(${r1.left+70}px,${r1.top-6}px)`;
+    dCursor.style.transform=`translate(${r2.left+r2.width/2-8}px,${r2.top+r2.height/2-4}px)`;await wait(500);
+    ghost.style.transform=`translate(${r2.left+70}px,${r2.top-6}px)`;await wait(450);
+    const dt=new DataTransfer();
+    rs[from].dispatchEvent(new DragEvent('dragstart',{bubbles:true,dataTransfer:dt}));
+    rs[to].dispatchEvent(new DragEvent('dragover',{bubbles:true,dataTransfer:dt,cancelable:true}));
+    rs[to].dispatchEvent(new DragEvent('drop',{bubbles:true,dataTransfer:dt,cancelable:true}));
+    rs[from].dispatchEvent(new DragEvent('dragend',{bubbles:true,dataTransfer:dt}));
+    ghost.style.display='none';await wait(700); };
+  await dMove('#tbody tr:first-child');dHl('#tbody tr:first-child');await wait(350);
+  say('…','整行卡片跟随鼠标移动，松手即落位。');
+  await dragSim(2,0);await dragSim(3,1);dClear();await wait(500);
+
+  say(19,'删除前先显示待删内容明细，确认后方可进入回收站。');
+  const delTarget=articles.find(a=>a.id===6);
+  if(delTarget){ askDeleteOne(6);await wait(1100);
+    await dMove('.delDetail .ddRow');dHl('.delDetail .ddRow');await wait(1400);dClear();
+    say('…','弹窗中列出标题、栏目、日期与状态，删除内容一目了然。');
+    await dMove('#mOk');await wait(350);confirmAction();await wait(750);
+    goto('trash');await wait(450);
+    await dMove('#trashBody tr:first-child');dHl('#trashBody tr:first-child');await wait(1200);
+    say('…','回收站中保留删除时间与原位置。');
+    await dMove('#trashBody tr:first-child .op a:first-child');await wait(350);
+    restoreTrash(trash[0].id);await wait(900);dClear();
+    say('…','每一次删除与恢复均写入操作日志，可在工作台查看留痕。');
+    goto('audit');await wait(500);
+    const logCard=document.getElementById('logCard');
+    if(logCard){logCard.scrollIntoView({block:'center'});dHl('#logCard');
+      const firstLog=document.querySelector('#logList .logrow');
+      if(firstLog){firstLog.classList.add('demo-hl');await dMove(firstLog);}
+      await wait(1800);}
+    dClear(); }
+
+  say(20,'敏感词库统一维护，新增词条即刻全站生效。');
+  goto('sens');await wait(500);
+  await dMove('#sensInput');dHl('#sensInput');
+  document.getElementById('sensInput').value='刷课代理';await wait(700);
+  addSensWord();await wait(1300);dClear();
+
+  /* ========= 第五幕：上线 ========= */
+  say(21,'第五部分，发布上线。变更先审核，发布前可预览效果，发布后留存快照、支持一键回滚。');
+  goto('pub');await wait(500);
+  await dMove('#pubList');dHl('#pubList');await wait(1000);dClear();
+  // 审核门禁演示：直接发布会拦截 → 点审核 → 再发布
+  const aprBtn1=document.querySelector('#pubList .pubrow .pghostbtn[onclick^="pubApprove(1"]');
+  const btn1=document.getElementById('pubBtn1');
+  await dMove(btn1);dHl(btn1);publishOne(1,btn1);await wait(1200);dClear();
+  if(aprBtn1){ await dMove(aprBtn1);dHl(aprBtn1);pubApprove(1,aprBtn1);await wait(1300);dClear(); }
+  await dMove(btn1);dHl(btn1);publishOne(1,btn1);await wait(2400);dClear();
+  const rb1=document.getElementById('rbBtn1');
+  if(rb1){ await dMove(rb1);dHl(rb1);await wait(900);dClear(); }
+  say('…','发布快照自动留存，异常时点「回滚」秒级切回上一版。');await wait(700);
+  say('…','发布完成后回看搭建画布：首页东方要闻区块已实时刷新，刚发布的稿件已进入区块，内容联动全链路打通。');
+  goto('tpl');await wait(500);
+  const zone2=document.getElementById('canvasZone');
+  if(zone2&&zone2.querySelector('.cvBlock')){zone2.scrollIntoView({block:'center'});
+    dHl('#canvasZone');
+    const newsBlk=[...zone2.querySelectorAll('.cvBlock')].find(b=>b.textContent.includes('要闻'));
+    if(newsBlk){newsBlk.classList.add('demo-hl');newsBlk.scrollIntoView({block:'center'});await wait(2000);}
+    await wait(800);}
+  dClear();
+
+  /* ========= 尾声：选型 ========= */
+  say(22,'官网风格选型：拖动滑杆对比两版效果，即刚才画布搭建的首页。');
+  goto('vs');await wait(600);
+  const wrap=document.querySelector('.vslider-wrap');
+  await dMove('#vsHandle');dHl('#vsHandle');await wait(400);
+  if(wrap&&wrap._sweepTo){ const wr=wrap.getBoundingClientRect();
+    for(const pct of [78,30,62,50]){ wrap._sweepTo(pct);
+      dCursor.style.transform=`translate(${wr.left+wr.width*pct/100-8}px,${wr.top+280}px)`; await wait(750);} }
+  dClear();await wait(400);
+
+  say(23,'回顾效果图来源：模板确定风格，画布选择组件、布局与内容，组合预览查看整页，审核后静态化发布，即为最终官网效果。');
+  await dMove('.vsgrid');dHl('.vsgrid');await wait(1900);dClear();
+
+  /* ========= 压轴：官网成品（风格三 · 建设首版） ========= */
+  say(24,'最后展示官网成品：即后台发布形成的前台效果，单页滚动式风格，首版设计已完成。');
+  goto('live');await wait(800);
+  const liveCard=document.querySelector('#pg-live > div:nth-of-type(2)');
+  if(liveCard){liveCard.scrollIntoView({block:'center'});}
+  await dMove('#pg-live iframe');dHl('#pg-live iframe');await wait(1200);
+  // 模拟滚动浏览 iframe 内官网（滚到新闻区再回顶）
+  try{ const fr=document.querySelector('#pg-live iframe');
+    if(fr&&fr.contentWindow){ fr.contentWindow.scrollTo(0,0);
+      for(const y of [900,1800,2600,1800,0]){ fr.contentWindow.scrollTo(0,y); await wait(700);} }
+  }catch(e){/* 跨域受限则跳过滚动 */}
+  dClear();await wait(600);
+
+  say('✓','演示结束。前台提供科技蓝、学术绿、单页滚动式三种风格可选，后台即刚才演示的全流程。');
+  await wait(2200);
+  dBar.classList.remove('on');dCursor.style.transform='translate(-60px,-60px)';
+  speakStop();
+  D.running=false;setPlayBtn();setStartBtn();
+  if(sessionStorage.getItem(AUTO_FLAG+'Loop')==='1'){
+    sessionStorage.setItem(AUTO_FLAG,'1');location.reload();
+  }else{sessionStorage.removeItem(AUTO_FLAG);}
+}
+function startDemo(){sessionStorage.setItem(AUTO_FLAG,'1');runDemo();}
+function exitDemo(){sessionStorage.removeItem(AUTO_FLAG);sessionStorage.removeItem(AUTO_FLAG+'Loop');location.reload();}
+document.getElementById('dPlay').onclick=()=>{if(!D.running)return startDemo();D.paused=!D.paused;setPlayBtn();
+  if(D.paused)speakStop(); /* 暂停即静音 */};
+document.getElementById('dSkip').onclick=()=>{D.skip=true;speakStop();};
+document.getElementById('dLoop').onclick=function(){const on=this.classList.toggle('loopon');
+  sessionStorage.setItem(AUTO_FLAG+'Loop',on?'1':'0');toast(on?'已开启循环播放':'已关闭循环播放');};
+document.getElementById('dExit').onclick=exitDemo;
+if(sessionStorage.getItem(AUTO_FLAG)==='1'){setTimeout(runDemo,700);}
+</script>
+</body></html>
